@@ -7,6 +7,7 @@ on:
 
 jobs:
   release:
+    name: Release (${{ matrix.arch }})
     permissions:
       contents: write
     strategy:
@@ -14,9 +15,11 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-            args: --target aarch64-apple-darwin
+            arch: apple-silicon
+            target: aarch64-apple-darwin
           - platform: macos-latest
-            args: --target x86_64-apple-darwin
+            arch: intel
+            target: x86_64-apple-darwin
 
     runs-on: ${{ matrix.platform }}
 
@@ -47,4 +50,5 @@ jobs:
           releaseBody: "See the assets below to download and install DockSwitcher."
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
+          args: --target ${{ matrix.target }}
+          assetNamePattern: dockswitcher_v[version]_macos_[arch][ext]

@@ -79,7 +79,7 @@ git tag v0.2.0
 git push origin v0.2.0
 ```
 
-The workflow builds macOS binaries for both architectures (Apple Silicon + Intel), creates a draft GitHub Release, and uploads the `.dmg` and `.app` artifacts. Review and publish the draft from the [Releases page](https://github.com/rodvilla/dockswitcher/releases).
+The workflow builds macOS binaries for both architectures (Apple Silicon + Intel), creates a draft GitHub Release, and uploads the `.dmg` and `.app` artifacts using clear names (e.g. `dockswitcher_v0.2.0_macos_aarch64.dmg` and `dockswitcher_v0.2.0_macos_x86_64.dmg`). Review and publish the draft from the [Releases page](https://github.com/rodvilla/dockswitcher/releases).
 
 ## Recommended IDE Setup
 
