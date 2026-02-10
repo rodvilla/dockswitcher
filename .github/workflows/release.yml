@@ -76,6 +76,7 @@ jobs:
   release:
     name: Release (${{ matrix.arch }})
     needs: test
+    if: always() && needs.test.result == 'success'
     permissions:
       contents: write
     strategy:
