@@ -9,6 +9,20 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Prevent text selection globally (matches native macOS app behavior).
+   Inputs and textareas remain selectable for usability. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /* macOS-style scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

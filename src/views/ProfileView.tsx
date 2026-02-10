@@ -10,14 +10,13 @@ import {
 import {
   SortableContext,
   verticalListSortingStrategy,
-  useSortable,
   arrayMove,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2, Plus, Download, Play } from 'lucide-react';
-import type { Profile } from '../types';
+import { Plus, Download, Play } from 'lucide-react';
+import type { Profile, AppEntry } from '../types/profile';
+import SortableAppItem from '../components/SortableAppItem';
 
-interface ProfileDetailProps {
+interface ProfileViewProps {
   profile: Profile | null;
   activeProfileId: string | null;
   onApplyProfile: (id: string) => void;
@@ -27,72 +26,7 @@ interface ProfileDetailProps {
   onUpdateProfile: (profile: Profile) => void;
 }
 
-interface SortableAppItemProps {
-  app: { name: string; path: string; icon?: string };
-  id: string;
-  onRemove: () => void;
-}
-
-const SortableAppItem = ({ app, id, onRemove }: SortableAppItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 50 : 'auto',
-    position: 'relative' as const,
-  };
-
-  const initial = app.name.charAt(0).toUpperCase();
-  // Simple color hash based on name length for variety
-  const colors = [
-    'bg-red-500', 'bg-orange-500', 'bg-amber-500', 
-    'bg-green-500', 'bg-emerald-500', 'bg-teal-500', 
-    'bg-cyan-500', 'bg-sky-500', 'bg-blue-500', 
-    'bg-indigo-500', 'bg-violet-500', 'bg-purple-500', 
-    'bg-fuchsia-500', 'bg-pink-500', 'bg-rose-500'
-  ];
-  const colorIndex = app.name.length % colors.length;
-  const bgClass = colors[colorIndex];
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="group flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 shadow-sm hover:border-gray-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
-    >
-      <div {...attributes} {...listeners} className="cursor-grab opacity-0 active:cursor-grabbing group-hover:opacity-100 transition-opacity">
-        <GripVertical className="h-4 w-4 text-gray-400" />
-      </div>
-
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white shadow-sm ${bgClass}`}>
-        <span className="text-lg font-bold">{initial}</span>
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate font-medium text-gray-900 dark:text-white">{app.name}</span>
-        <span className="truncate text-xs text-gray-400 dark:text-slate-500">{app.path}</span>
-      </div>
-
-      <button
-        onClick={onRemove}
-        className="rounded-md p-2 opacity-0 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all"
-        title="Remove app"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
-    </div>
-  );
-};
-
-const ProfileDetail: React.FC<ProfileDetailProps> = ({
+const ProfileView: React.FC<ProfileViewProps> = ({
   profile,
   activeProfileId,
   onApplyProfile,
@@ -128,8 +62,8 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const oldIndex = profile.apps.findIndex((app) => app.path === active.id);
-      const newIndex = profile.apps.findIndex((app) => app.path === over.id);
+      const oldIndex = profile.apps.findIndex((app: AppEntry) => app.path === active.id);
+      const newIndex = profile.apps.findIndex((app: AppEntry) => app.path === over.id);
       
       if (oldIndex !== -1 && newIndex !== -1) {
         const newApps = arrayMove(profile.apps, oldIndex, newIndex);
@@ -140,7 +74,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({
 
   return (
     <div className="flex h-full flex-col bg-gray-50 dark:bg-slate-900">
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
+      <div data-tauri-drag-region className="flex items-center justify-between border-b border-gray-200 bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{profile.name}</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -150,6 +84,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({
         
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={() => onSaveDock(profile.id)}
             className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-gray-200 dark:hover:bg-slate-700 transition-colors"
           >
@@ -164,6 +99,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({
             </span>
           ) : (
             <button
+              type="button"
               onClick={() => onApplyProfile(profile.id)}
               className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors"
             >
@@ -193,12 +129,12 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={profile.apps.map((app) => app.path)}
+                items={profile.apps.map((app: AppEntry) => app.path)}
                 strategy={verticalListSortingStrategy}
               >
-                {profile.apps.map((app, index) => (
+                {profile.apps.map((app: AppEntry, index: number) => (
                   <SortableAppItem
-                    key={app.path} // Assuming path is unique enough for UI key
+                    key={app.path}
                     id={app.path}
                     app={app}
                     onRemove={() => onRemoveApp(profile.id, index)}
@@ -210,6 +146,7 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({
         )}
 
         <button
+          type="button"
           onClick={() => onAddApp(profile.id)}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-transparent px-4 py-3 text-sm font-medium text-gray-500 hover:border-gray-400 hover:text-gray-600 dark:border-slate-700 dark:text-gray-400 dark:hover:border-slate-600 dark:hover:text-gray-300 transition-colors"
         >
@@ -221,4 +158,4 @@ const ProfileDetail: React.FC<ProfileDetailProps> = ({
   );
 };
 
-export default ProfileDetail;
+export default ProfileView;

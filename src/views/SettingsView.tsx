@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
-import type { Settings } from '../types';
+import type { Settings } from '../types/settings';
 
 interface SettingsViewProps {
   settings: Settings;
@@ -29,24 +29,29 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 
   return (
     <div className="flex h-full flex-col bg-gray-50 dark:bg-slate-900">
-      <div className="flex items-center gap-3 border-b border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-        <button
-          onClick={onBack}
-          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Settings</h1>
+      <div data-tauri-drag-region className="border-b border-gray-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div data-tauri-drag-region className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onBack}
+            data-tauri-drag-region="false"
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 data-tauri-drag-region className="text-lg font-semibold text-gray-900 dark:text-white">Settings</h1>
+        </div>
       </div>
 
       <div className="flex-1 p-6">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <label className="text-base font-medium text-gray-900 dark:text-white">Launch at Login</label>
+              <span className="text-base font-medium text-gray-900 dark:text-white">Launch at Login</span>
               <p className="text-sm text-gray-500 dark:text-gray-400">Start DockSwitcher automatically when you log in</p>
             </div>
             <button
+              type="button"
               onClick={toggleLaunchAtLogin}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
                 settings.launch_at_login ? 'bg-blue-600' : 'bg-gray-200 dark:bg-slate-700'
@@ -62,10 +67,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <label className="text-base font-medium text-gray-900 dark:text-white">Confirm before switching</label>
+              <span className="text-base font-medium text-gray-900 dark:text-white">Confirm before switching</span>
               <p className="text-sm text-gray-500 dark:text-gray-400">Show a confirmation dialog before applying a new Dock profile</p>
             </div>
             <button
+              type="button"
               onClick={toggleConfirmBeforeSwitch}
               className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
                 settings.confirm_before_switch ? 'bg-blue-600' : 'bg-gray-200 dark:bg-slate-700'

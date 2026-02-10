@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
-import Sidebar from "./components/Sidebar";
-import ProfileDetail from "./components/ProfileDetail";
-import SettingsView from "./components/SettingsView";
-import ConfirmDialog from "./components/ConfirmDialog";
-import { useProfiles } from "./hooks/useProfiles";
-import { useDock } from "./hooks/useDock";
-import { useSettings } from "./hooks/useSettings";
-import type { Profile } from "./types";
+import { Sidebar, ConfirmDialog } from "./components";
+import { ProfileView, SettingsView } from "./views";
+import type { ConfirmDialogState } from "./views";
+import { useProfiles, useDock, useSettings } from "./hooks";
+import type { Profile } from "./types/profile";
 
 function App() {
   const {
@@ -37,14 +34,7 @@ function App() {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   
-  const [confirmDialogState, setConfirmDialogState] = useState<{
-    open: boolean;
-    title: string;
-    message: string;
-    action: () => Promise<void> | void;
-    confirmLabel: string;
-    isDelete?: boolean;
-  }>({
+  const [confirmDialogState, setConfirmDialogState] = useState<ConfirmDialogState>({
     open: false,
     title: "",
     message: "",
@@ -181,7 +171,7 @@ function App() {
         profiles={profiles}
         selectedProfileId={selectedProfileId}
         activeProfileId={activeProfileId}
-        onSelectProfile={(id) => {
+        onSelectProfile={(id: string) => {
           setSelectedProfileId(id);
           setShowSettings(false);
         }}
@@ -208,7 +198,7 @@ function App() {
             }}
           />
         ) : (
-          <ProfileDetail
+          <ProfileView
             profile={selectedProfile}
             activeProfileId={activeProfileId}
             onApplyProfile={handleApplyProfile}
