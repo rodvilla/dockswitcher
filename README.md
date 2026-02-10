@@ -18,7 +18,7 @@ macOS menu bar app to switch Dock profiles.
 ```bash
 git clone https://github.com/rodvilla/dockswitcher.git
 cd dockswitcher
-npm install
+yarn install
 ```
 
 ### Development
@@ -26,19 +26,19 @@ npm install
 Run the full desktop app with live reload:
 
 ```bash
-npm run tauri dev
+yarn run tauri dev
 ```
 
 If you only want the frontend dev server:
 
 ```bash
-npm run dev
+yarn run dev
 ```
 
 ### Testing
 
 ```bash
-npm test
+yarn test
 ```
 
 ```bash
@@ -48,7 +48,7 @@ cargo test
 ### Build (production)
 
 ```bash
-npm run tauri build
+yarn run tauri build
 ```
 
 Build artifacts are generated at:
@@ -62,8 +62,8 @@ This includes a `.dmg` installer and `.app` bundle.
 ### Preview the production frontend
 
 ```bash
-npm run build
-npm run preview
+yarn run build
+yarn run preview
 ```
 
 ## Recommended IDE Setup

@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "identifier": "com.rodvilla.dockswitcher",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "yarn dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "yarn build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -33,9 +33,7 @@
   "bundle": {
     "active": true,
     "targets": ["dmg", "app"],
-    "icon": [
-      "icons/icon.icns"
-    ],
+    "icon": ["icons/icon.icns"],
     "macOS": {
       "frameworks": [],
       "minimumSystemVersion": "14.0",
@@ -43,8 +41,6 @@
       "signingIdentity": null,
       "entitlements": null
     },
-    "resources": [
-      "resources/*"
-    ]
+    "resources": ["resources/*"]
   }
 }
