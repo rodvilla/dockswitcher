@@ -120,5 +120,5 @@ jobs:
           releaseBody: "See the assets below to download and install DockSwitcher."
           releaseDraft: true
           prerelease: false
-          args: --target ${{ matrix.target }} --bundle dmg
+          args: --target ${{ matrix.target }} --bundles dmg
           assetNamePattern: dockswitcher_v[version]_macos_${{ matrix.arch }}[ext]
