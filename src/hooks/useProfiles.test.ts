@@ -158,8 +158,8 @@ describe("useProfiles", () => {
 
     const { result } = renderHook(() => useProfiles());
 
-    await waitFor(() => !result.current.loading);
-
-    expect(result.current.error).toContain("boom");
+    await waitFor(() => {
+      expect(result.current.error).toContain("boom");
+    });
   });
 });

@@ -43,6 +43,9 @@ jobs:
       - name: Run frontend tests
         run: yarn test
 
+      - name: Run frontend lint
+        run: npm run lint
+
       - name: Run Rust tests
         run: cargo test
 
