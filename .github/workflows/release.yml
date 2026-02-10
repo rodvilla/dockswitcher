@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - arch: apple-silicon
+          - arch: silicon
             target: aarch64-apple-darwin
           - arch: intel
             target: x86_64-apple-darwin
@@ -119,5 +119,5 @@ jobs:
           releaseBody: "See the assets below to download and install DockSwitcher."
           releaseDraft: true
           prerelease: false
-          args: --target ${{ matrix.target }}
-          assetNamePattern: dockswitcher_v[version]_macos_[arch][ext]
+          args: --target ${{ matrix.target }} --bundle dmg
+          assetNamePattern: dockswitcher_v[version]_macos_${{ matrix.arch }}[ext]

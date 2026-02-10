@@ -1,8 +1,8 @@
 # DockSwitcher
 
-[![Release](https://github.com/rodvilla/dockswitcher/actions/workflows/release.yml/badge.svg)](https://github.com/rodvilla/dockswitcher/actions/workflows/release.yml)
-[![GitHub Release](https://img.shields.io/github/v/release/rodvilla/dockswitcher?include_prereleases)](https://github.com/rodvilla/dockswitcher/releases/latest)
-[![License](https://img.shields.io/github/license/rodvilla/dockswitcher)](LICENSE)
+[![Release](https://github.com/rodvilla/dockswitcher/actions/workflows/release.yml/badge.svg?style=flat-square)](https://github.com/rodvilla/dockswitcher/actions/workflows/release.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/rodvilla/dockswitcher?include_prereleases&style=flat-square)](https://github.com/rodvilla/dockswitcher/releases/latest)
+[![License](https://img.shields.io/github/license/rodvilla/dockswitcher?style=flat-square)](LICENSE)
 
 macOS menu bar app to switch Dock profiles.
 
