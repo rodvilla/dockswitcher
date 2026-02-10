@@ -90,7 +90,7 @@ const SortableProfileItem = ({
       <div
         ref={setNodeRef}
         style={style}
-        className="mx-2 mb-1 rounded-md bg-white p-1 ring-2 ring-blue-600 dark:bg-slate-700"
+        className="mx-2 mb-2 rounded-md bg-white p-2 ring-2 ring-blue-600 dark:bg-slate-700"
       >
         <input
           ref={inputRef}
@@ -98,7 +98,7 @@ const SortableProfileItem = ({
           onChange={(e) => setRenameValue(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={() => onRenameSubmit(renameValue)}
-          className="w-full bg-transparent px-2 py-1 text-sm outline-none dark:text-white"
+          className="w-full bg-transparent px-3 py-2 text-lg outline-none dark:text-white"
         />
       </div>
     );
@@ -111,23 +111,23 @@ const SortableProfileItem = ({
       {...attributes}
       onClick={onSelect}
       onContextMenu={(e) => onContextMenu(e, profile.id)}
-      className={`group relative mx-2 mb-1 flex cursor-default select-none items-center rounded-md px-2 py-1.5 transition-colors ${
+      className={`group relative mx-2 mb-2 flex cursor-default select-none items-center rounded-md px-4 py-3 transition-colors ${
         isSelected
           ? 'bg-blue-600 text-white'
           : 'text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-slate-700'
       }`}
     >
-      <div className="absolute left-1 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
-        <div {...listeners} className="cursor-grab p-0.5 active:cursor-grabbing">
-          <GripVertical className={`h-3 w-3 ${isSelected ? 'text-blue-200' : 'text-gray-400'}`} />
+      <div className="absolute left-2 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+        <div {...listeners} className="cursor-grab p-1 active:cursor-grabbing">
+          <GripVertical className={`h-5 w-5 ${isSelected ? 'text-blue-200' : 'text-gray-400'}`} />
         </div>
       </div>
       
-      <div className="flex w-full items-center pl-5">
+      <div className="flex w-full items-center pl-8">
         {isActive && (
-          <span className={`mr-2 h-2 w-2 rounded-full ${isSelected ? 'bg-green-300' : 'bg-green-500'}`} />
+          <span className={`mr-3 h-3 w-3 rounded-full ${isSelected ? 'bg-green-300' : 'bg-green-500'}`} />
         )}
-        <span className="truncate text-sm font-medium">{profile.name}</span>
+        <span className="truncate text-lg font-medium">{profile.name}</span>
       </div>
     </div>
   );
@@ -237,7 +237,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </DndContext>
 
         {isCreating && (
-          <div className="mx-2 mb-1 rounded-md bg-white p-1 ring-2 ring-blue-600 dark:bg-slate-700">
+          <div className="mx-2 mb-2 rounded-md bg-white p-2 ring-2 ring-blue-600 dark:bg-slate-700">
             <input
               ref={newProfileInputRef}
               value={newProfileName}
@@ -245,28 +245,28 @@ const Sidebar: React.FC<SidebarProps> = ({
               onKeyDown={handleCreateKeyDown}
               onBlur={handleCreateSubmit}
               placeholder="Profile Name"
-              className="w-full bg-transparent px-2 py-1 text-sm outline-none dark:text-white"
+              className="w-full bg-transparent px-3 py-2 text-lg outline-none dark:text-white"
             />
           </div>
         )}
       </div>
 
-      <div className="border-t border-gray-200 bg-gray-100/50 p-2 dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="border-t border-gray-200 bg-gray-100/50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
         {!isCreating && (
           <button
             onClick={() => setIsCreating(true)}
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-slate-700 transition-colors"
+            className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-base font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-slate-700 transition-colors"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-5 w-5" />
             <span>Add Profile</span>
           </button>
         )}
-        <div className="my-1 border-t border-gray-200 dark:border-slate-700" />
+        <div className="my-2 border-t border-gray-200 dark:border-slate-700" />
         <button
           onClick={onOpenSettings}
-          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-slate-700 transition-colors"
+          className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-base font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-slate-700 transition-colors"
         >
-          <SettingsIcon className="h-4 w-4" />
+          <SettingsIcon className="h-5 w-5" />
           <span>Settings</span>
         </button>
       </div>

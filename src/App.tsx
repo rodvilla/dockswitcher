@@ -118,15 +118,18 @@ function App() {
   const handleAddApp = async (id: string) => {
     try {
       const selected = await open({
-        title: "Select Application",
+        title: "Select Applications",
         defaultPath: "/Applications",
         directory: false,
-        multiple: false,
+        multiple: true,
         filters: [{ name: "Applications", extensions: ["app"] }],
       });
 
-      if (selected && typeof selected === "string") {
-        await addAppToProfile(id, selected);
+      if (selected) {
+        const paths = Array.isArray(selected) ? selected : [selected];
+        for (const path of paths) {
+          await addAppToProfile(id, path);
+        }
         await refreshProfiles();
       }
     } catch (error) {
