@@ -1,10 +1,16 @@
 use crate::store::Store;
 use tauri::{
     menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem},
-    WebviewWindow,
+    Manager, WebviewWindow,
 };
 
 pub(crate) fn show_window(window: &WebviewWindow) {
+    #[cfg(target_os = "macos")]
+    {
+        let _ = window
+            .app_handle()
+            .set_activation_policy(tauri::ActivationPolicy::Regular);
+    }
     window.show().unwrap_or_default();
     window.set_focus().unwrap_or_default();
 }

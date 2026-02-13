@@ -88,7 +88,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
       </div>
 
       <div className="border-t border-gray-200 p-6 text-center dark:border-slate-800">
-        <p className="text-xs text-gray-400 dark:text-slate-500">DockSwitcher v0.1.0</p>
+        <p className="text-xs text-gray-400 dark:text-slate-500">DockSwitcher v0.2.0</p>
       </div>
     </div>
   );

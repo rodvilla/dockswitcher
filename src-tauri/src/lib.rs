@@ -6,16 +6,20 @@ mod tray;
 
 use crate::store::Store;
 use crate::tray::{build_tray_menu, show_window};
-use tauri::{tray::TrayIconBuilder, Manager, WindowEvent};
+use tauri::{tray::TrayIconBuilder, Manager, RunEvent, WindowEvent};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let store = Store::load().unwrap_or_default();
 
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            None,
+        ))
         .manage(std::sync::Mutex::new(store))
         .setup(|app| {
             #[cfg(target_os = "macos")]
@@ -71,6 +75,12 @@ pub fn run() {
             if let WindowEvent::CloseRequested { api, .. } = event {
                 window.hide().unwrap_or_default();
                 api.prevent_close();
+                #[cfg(target_os = "macos")]
+                {
+                    let _ = window
+                        .app_handle()
+                        .set_activation_policy(tauri::ActivationPolicy::Accessory);
+                }
             }
         })
         .invoke_handler(tauri::generate_handler![
@@ -89,6 +99,21 @@ pub fn run() {
             commands::dock::remove_app_from_profile,
             commands::dock::check_dockutil,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running DockSwitcher");
+        .build(tauri::generate_context!())
+        .expect("error while building DockSwitcher");
+
+    app.run(|app_handle, event| {
+        #[cfg(target_os = "macos")]
+        if let RunEvent::Reopen {
+            has_visible_windows,
+            ..
+        } = event
+        {
+            if !has_visible_windows {
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    show_window(&window);
+                }
+            }
+        }
+    });
 }
