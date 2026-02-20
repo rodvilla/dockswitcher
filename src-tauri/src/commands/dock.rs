@@ -2,6 +2,31 @@ use crate::dock::{get_dockutil_path, parse_dockutil_output};
 use crate::store::{AppEntry, Store};
 use crate::tray::build_tray_menu;
 
+fn find_duti_path() -> Option<String> {
+    let candidates = ["/opt/homebrew/bin/duti", "/usr/local/bin/duti"];
+    for path in &candidates {
+        if std::path::Path::new(path).exists() {
+            return Some(path.to_string());
+        }
+    }
+    None
+}
+
+fn url_schemes_for_role(role: &str) -> Vec<&'static str> {
+    match role {
+        "browser" => vec!["http", "https"],
+        "email" => vec!["mailto"],
+        "ftp" => vec!["ftp"],
+        "calendar" => vec!["webcal"],
+        _ => vec![],
+    }
+}
+
+#[tauri::command]
+pub fn check_duti() -> Result<bool, String> {
+    Ok(find_duti_path().is_some())
+}
+
 #[tauri::command]
 pub fn check_dockutil(app: tauri::AppHandle) -> Result<bool, String> {
     Ok(get_dockutil_path(&app).is_ok())
@@ -92,6 +117,29 @@ pub fn apply_profile(
         let store = state.lock().map_err(|e| e.to_string())?;
         if let Ok(menu) = build_tray_menu(&app, &store) {
             let _ = tray.set_menu(Some(menu));
+        }
+    }
+
+    // Apply default apps via duti (best-effort: skip silently if duti not installed)
+    if !profile.default_apps.is_empty() {
+        if let Some(duti) = find_duti_path() {
+            for default_app in &profile.default_apps {
+                for scheme in url_schemes_for_role(&default_app.role) {
+                    if let Err(e) = std::process::Command::new(&duti)
+                        .args(["-s", &default_app.bundle_id, scheme, "all"])
+                        .output()
+                    {
+                        eprintln!(
+                            "duti failed for {} ({}): {}",
+                            default_app.bundle_id, scheme, e
+                        );
+                    }
+                }
+            }
+        } else {
+            eprintln!(
+                "duti not found; skipping default app changes. Install with: brew install duti"
+            );
         }
     }
 

@@ -13,10 +13,19 @@ pub struct AppEntry {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DefaultApp {
+    pub bundle_id: String,
+    /// Role to assign: "browser", "email", "ftp", or "calendar"
+    pub role: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Profile {
     pub id: String,
     pub name: String,
     pub apps: Vec<AppEntry>,
+    #[serde(default)]
+    pub default_apps: Vec<DefaultApp>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -251,6 +260,56 @@ mod tests {
         let json = serde_json::to_string(&entry).unwrap();
         assert!(json.contains("icon"));
         assert!(json.contains("bundle_id"));
+    }
+
+    #[test]
+    fn default_app_serialization_roundtrip() {
+        let entry = DefaultApp {
+            bundle_id: "com.google.Chrome".to_string(),
+            role: "browser".to_string(),
+        };
+        let json = serde_json::to_string(&entry).unwrap();
+        let deserialized: DefaultApp = serde_json::from_str(&json).unwrap();
+        assert_eq!(entry, deserialized);
+    }
+
+    #[test]
+    fn profile_default_apps_serde_default() {
+        let json = r#"{
+            "id": "p1",
+            "name": "Work",
+            "apps": [],
+            "created_at": "2025-01-01T00:00:00Z",
+            "updated_at": "2025-01-01T00:00:00Z"
+        }"#;
+        let profile: Profile = serde_json::from_str(json).unwrap();
+        assert!(profile.default_apps.is_empty());
+    }
+
+    #[test]
+    fn profile_default_apps_roundtrip() {
+        let profile = Profile {
+            id: "p1".to_string(),
+            name: "Work".to_string(),
+            apps: vec![],
+            default_apps: vec![
+                DefaultApp {
+                    bundle_id: "app.zen-browser.zen".to_string(),
+                    role: "browser".to_string(),
+                },
+                DefaultApp {
+                    bundle_id: "com.apple.mail".to_string(),
+                    role: "email".to_string(),
+                },
+            ],
+            created_at: "2025-01-01T00:00:00Z".to_string(),
+            updated_at: "2025-01-01T00:00:00Z".to_string(),
+        };
+        let json = serde_json::to_string_pretty(&profile).unwrap();
+        let deserialized: Profile = serde_json::from_str(&json).unwrap();
+        assert_eq!(profile, deserialized);
+        assert_eq!(deserialized.default_apps.len(), 2);
+        assert_eq!(deserialized.default_apps[0].role, "browser");
     }
 
     #[test]

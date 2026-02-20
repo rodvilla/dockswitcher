@@ -98,6 +98,7 @@ pub fn run() {
             commands::dock::add_app_to_profile,
             commands::dock::remove_app_from_profile,
             commands::dock::check_dockutil,
+            commands::dock::check_duti,
         ])
         .build(tauri::generate_context!())
         .expect("error while building DockSwitcher");

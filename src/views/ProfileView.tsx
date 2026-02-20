@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -12,9 +12,16 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from '@dnd-kit/sortable';
-import { Plus, Download, Play } from 'lucide-react';
-import type { Profile, AppEntry } from '../types/profile';
+import { Plus, Download, Play, Globe, Trash2 } from 'lucide-react';
+import type { Profile, AppEntry, DefaultApp } from '../types/profile';
 import SortableAppItem from '../components/SortableAppItem';
+
+const DEFAULT_APP_ROLES: { value: string; label: string }[] = [
+  { value: "browser", label: "Browser (HTTP/HTTPS)" },
+  { value: "email", label: "Email (mailto)" },
+  { value: "ftp", label: "FTP" },
+  { value: "calendar", label: "Calendar (webcal)" },
+];
 
 interface ProfileViewProps {
   profile: Profile | null;
@@ -43,6 +50,10 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     })
   );
 
+  const [showAddDefault, setShowAddDefault] = useState(false);
+  const [newDefaultBundleId, setNewDefaultBundleId] = useState("");
+  const [newDefaultRole, setNewDefaultRole] = useState(DEFAULT_APP_ROLES[0].value);
+
   if (!profile) {
     return (
       <div className="flex h-full flex-col items-center justify-center bg-gray-50 p-8 text-center dark:bg-slate-900">
@@ -58,6 +69,26 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   }
 
   const isActive = activeProfileId === profile.id;
+
+  const appsWithBundleId = profile.apps.filter((app: AppEntry) => app.bundle_id);
+
+  const handleAddDefaultApp = () => {
+    const isValid = newDefaultBundleId && appsWithBundleId.some((a: AppEntry) => a.bundle_id === newDefaultBundleId);
+    if (!isValid) return;
+    const updated: DefaultApp[] = [
+      ...profile.default_apps,
+      { bundle_id: newDefaultBundleId, role: newDefaultRole },
+    ];
+    onUpdateProfile({ ...profile, default_apps: updated });
+    setShowAddDefault(false);
+    setNewDefaultBundleId("");
+    setNewDefaultRole(DEFAULT_APP_ROLES[0].value);
+  };
+
+  const handleRemoveDefaultApp = (index: number) => {
+    const updated = profile.default_apps.filter((_: DefaultApp, i: number) => i !== index);
+    onUpdateProfile({ ...profile, default_apps: updated });
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -153,6 +184,120 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           <Plus className="h-4 w-4" />
           Add App
         </button>
+
+        {/* Default Applications section */}
+        <div className="mt-8">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Default Applications</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddDefault(true);
+                setNewDefaultBundleId(appsWithBundleId[0]?.bundle_id ?? "");
+              }}
+              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
+            >
+              <Plus className="h-3 w-3" />
+              Add
+            </button>
+          </div>
+
+          <p className="mb-3 text-xs text-gray-400 dark:text-slate-500">
+            Designate apps as the system default for specific roles when this profile is applied. Requires{" "}
+            <code className="rounded bg-gray-100 px-1 dark:bg-slate-800">duti</code>{" "}
+            (<code className="rounded bg-gray-100 px-1 dark:bg-slate-800">brew install duti</code>).
+          </p>
+
+          {profile.default_apps.length === 0 && !showAddDefault ? (
+            <p className="text-xs text-gray-400 dark:text-slate-500">No default app assignments yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {profile.default_apps.map((da: DefaultApp, index: number) => {
+                const appName = profile.apps.find((a: AppEntry) => a.bundle_id === da.bundle_id)?.name ?? da.bundle_id;
+                const roleLabel = DEFAULT_APP_ROLES.find((r) => r.value === da.role)?.label ?? da.role;
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-800"
+                  >
+                    <div className="flex min-w-0 flex-col">
+                      <span className="truncate text-sm font-medium text-gray-900 dark:text-white">{appName}</span>
+                      <span className="truncate text-xs text-gray-400 dark:text-slate-500">{roleLabel}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDefaultApp(index)}
+                      className="ml-2 rounded-md p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all"
+                      title="Remove"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {showAddDefault && (
+            <div className="mt-2 flex flex-col gap-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
+              {appsWithBundleId.length === 0 ? (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  No apps with a known Bundle ID in this profile. Use "Save apps from Dock" or add apps via dockutil to populate bundle IDs.
+                </p>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="default-app-select" className="text-xs font-medium text-gray-600 dark:text-gray-400">App</label>
+                    <select
+                      id="default-app-select"
+                      value={newDefaultBundleId}
+                      onChange={(e) => setNewDefaultBundleId(e.target.value)}
+                      className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    >
+                      {appsWithBundleId.map((app: AppEntry) => (
+                        <option key={app.bundle_id} value={app.bundle_id}>
+                          {app.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="default-role-select" className="text-xs font-medium text-gray-600 dark:text-gray-400">Role</label>
+                    <select
+                      id="default-role-select"
+                      value={newDefaultRole}
+                      onChange={(e) => setNewDefaultRole(e.target.value)}
+                      className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    >
+                      {DEFAULT_APP_ROLES.map((r) => (
+                        <option key={r.value} value={r.value}>{r.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleAddDefaultApp}
+                      className="rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-500 transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowAddDefault(false)}
+                className="self-start rounded-md border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-700 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
