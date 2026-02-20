@@ -1,5 +1,6 @@
 mod commands;
 mod dock;
+mod duti;
 mod icon;
 mod store;
 mod tray;

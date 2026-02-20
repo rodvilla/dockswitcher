@@ -23,6 +23,7 @@ function App() {
     saveDockToProfile,
     addAppToProfile,
     removeAppFromProfile,
+    checkDuti,
   } = useDock();
 
   const {
@@ -33,6 +34,7 @@ function App() {
 
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [dutiAvailable, setDutiAvailable] = useState(true);
   
   const [confirmDialogState, setConfirmDialogState] = useState<ConfirmDialogState>({
     open: false,
@@ -41,6 +43,15 @@ function App() {
     action: () => {},
     confirmLabel: "Confirm",
   });
+
+  useEffect(() => {
+    checkDuti()
+      .then(setDutiAvailable)
+      .catch((err) => {
+        console.error("Failed to check duti:", err);
+        setDutiAvailable(false);
+      });
+  }, [checkDuti]);
 
   useEffect(() => {
     if (!selectedProfileId && profiles.length > 0 && !profilesLoading) {
@@ -201,6 +212,7 @@ function App() {
           <ProfileView
             profile={selectedProfile}
             activeProfileId={activeProfileId}
+            dutiAvailable={dutiAvailable}
             onApplyProfile={handleApplyProfile}
             onSaveDock={handleSaveDock}
             onAddApp={handleAddApp}

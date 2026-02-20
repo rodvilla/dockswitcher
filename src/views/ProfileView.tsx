@@ -12,7 +12,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from '@dnd-kit/sortable';
-import { Plus, Download, Play, Globe, Trash2 } from 'lucide-react';
+import { Plus, Download, Play, Globe, Trash2, AlertTriangle } from 'lucide-react';
 import type { Profile, AppEntry, DefaultApp } from '../types/profile';
 import SortableAppItem from '../components/SortableAppItem';
 
@@ -26,6 +26,7 @@ const DEFAULT_APP_ROLES: { value: string; label: string }[] = [
 interface ProfileViewProps {
   profile: Profile | null;
   activeProfileId: string | null;
+  dutiAvailable: boolean;
   onApplyProfile: (id: string) => void;
   onSaveDock: (id: string) => void;
   onAddApp: (id: string) => void;
@@ -36,6 +37,7 @@ interface ProfileViewProps {
 const ProfileView: React.FC<ProfileViewProps> = ({
   profile,
   activeProfileId,
+  dutiAvailable,
   onApplyProfile,
   onSaveDock,
   onAddApp,
@@ -74,7 +76,10 @@ const ProfileView: React.FC<ProfileViewProps> = ({
 
   const handleAddDefaultApp = () => {
     const isValid = newDefaultBundleId && appsWithBundleId.some((a: AppEntry) => a.bundle_id === newDefaultBundleId);
-    if (!isValid) return;
+    const roleTaken = profile.default_apps.some((da: DefaultApp) => da.role === newDefaultRole);
+    
+    if (!isValid || roleTaken) return;
+    
     const updated: DefaultApp[] = [
       ...profile.default_apps,
       { bundle_id: newDefaultBundleId, role: newDefaultRole },
@@ -82,7 +87,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     onUpdateProfile({ ...profile, default_apps: updated });
     setShowAddDefault(false);
     setNewDefaultBundleId("");
-    setNewDefaultRole(DEFAULT_APP_ROLES[0].value);
+    
+    const nextAvailableRole = DEFAULT_APP_ROLES.find(r => !updated.some(da => da.role === r.value));
+    if (nextAvailableRole) {
+      setNewDefaultRole(nextAvailableRole.value);
+    }
   };
 
   const handleRemoveDefaultApp = (index: number) => {
@@ -185,7 +194,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           Add App
         </button>
 
-        {/* Default Applications section */}
         <div className="mt-8">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -194,21 +202,39 @@ const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
             <button
               type="button"
+              disabled={!dutiAvailable}
               onClick={() => {
                 setShowAddDefault(true);
                 setNewDefaultBundleId(appsWithBundleId[0]?.bundle_id ?? "");
+                const nextAvailableRole = DEFAULT_APP_ROLES.find(r => !profile.default_apps.some(da => da.role === r.value));
+                if (nextAvailableRole) {
+                  setNewDefaultRole(nextAvailableRole.value);
+                }
               }}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
+              className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                dutiAvailable 
+                  ? "text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20" 
+                  : "cursor-not-allowed text-gray-400 dark:text-gray-600"
+              }`}
             >
               <Plus className="h-3 w-3" />
               Add
             </button>
           </div>
 
+          {!dutiAvailable && (
+            <div className="mb-4 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-amber-900 dark:bg-amber-900/20 dark:text-amber-200">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <div className="text-xs">
+                <p className="font-medium">duti is not installed</p>
+                <p className="mt-0.5 opacity-90">Install it to manage default applications: <code className="rounded bg-amber-100 px-1 font-mono text-amber-800 dark:bg-amber-900/40 dark:text-amber-100">brew install duti</code></p>
+              </div>
+            </div>
+          )}
+
           <p className="mb-3 text-xs text-gray-400 dark:text-slate-500">
             Designate apps as the system default for specific roles when this profile is applied. Requires{" "}
-            <code className="rounded bg-gray-100 px-1 dark:bg-slate-800">duti</code>{" "}
-            (<code className="rounded bg-gray-100 px-1 dark:bg-slate-800">brew install duti</code>).
+            <code className="rounded bg-gray-100 px-1 dark:bg-slate-800">duti</code>.
           </p>
 
           {profile.default_apps.length === 0 && !showAddDefault ? (
@@ -220,7 +246,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                 const roleLabel = DEFAULT_APP_ROLES.find((r) => r.value === da.role)?.label ?? da.role;
                 return (
                   <div
-                    key={index}
+                    key={`${da.bundle_id}-${da.role}`}
                     className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-800"
                   >
                     <div className="flex min-w-0 flex-col">
@@ -243,7 +269,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({
 
           {showAddDefault && (
             <div className="mt-2 flex flex-col gap-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800">
-              {appsWithBundleId.length === 0 ? (
+              {DEFAULT_APP_ROLES.filter(r => !profile.default_apps.some(da => da.role === r.value)).length === 0 ? (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  All supported roles have already been assigned. Remove an existing assignment to change it.
+                </p>
+              ) : appsWithBundleId.length === 0 ? (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   No apps with a known Bundle ID in this profile. Use "Save apps from Dock" or add apps via dockutil to populate bundle IDs.
                 </p>
@@ -272,7 +302,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                       onChange={(e) => setNewDefaultRole(e.target.value)}
                       className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     >
-                      {DEFAULT_APP_ROLES.map((r) => (
+                      {DEFAULT_APP_ROLES.filter(r => !profile.default_apps.some(da => da.role === r.value)).map((r) => (
                         <option key={r.value} value={r.value}>{r.label}</option>
                       ))}
                     </select>

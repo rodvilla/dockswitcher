@@ -26,6 +26,7 @@ pub fn create_profile(
         id: uuid::Uuid::new_v4().to_string(),
         name,
         apps: Vec::new(),
+        default_apps: Vec::new(),
         created_at: chrono::Utc::now().to_rfc3339(),
         updated_at: chrono::Utc::now().to_rfc3339(),
     };

@@ -39,6 +39,10 @@ export function useDock() {
     return invoke<boolean>("check_dockutil");
   }, []);
 
+  const checkDuti = useCallback(async () => {
+    return invoke<boolean>("check_duti");
+  }, []);
+
   return {
     loading,
     getCurrentDockApps,
@@ -46,5 +50,6 @@ export function useDock() {
     addAppToProfile,
     removeAppFromProfile,
     checkDockutil,
+    checkDuti,
   };
 }

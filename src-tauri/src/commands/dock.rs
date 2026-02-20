@@ -1,30 +1,11 @@
 use crate::dock::{get_dockutil_path, parse_dockutil_output};
+use crate::duti::{get_duti_path, url_schemes_for_role};
 use crate::store::{AppEntry, Store};
 use crate::tray::build_tray_menu;
 
-fn find_duti_path() -> Option<String> {
-    let candidates = ["/opt/homebrew/bin/duti", "/usr/local/bin/duti"];
-    for path in &candidates {
-        if std::path::Path::new(path).exists() {
-            return Some(path.to_string());
-        }
-    }
-    None
-}
-
-fn url_schemes_for_role(role: &str) -> Vec<&'static str> {
-    match role {
-        "browser" => vec!["http", "https"],
-        "email" => vec!["mailto"],
-        "ftp" => vec!["ftp"],
-        "calendar" => vec!["webcal"],
-        _ => vec![],
-    }
-}
-
 #[tauri::command]
-pub fn check_duti() -> Result<bool, String> {
-    Ok(find_duti_path().is_some())
+pub fn check_duti(app: tauri::AppHandle) -> Result<bool, String> {
+    Ok(get_duti_path(&app).is_ok())
 }
 
 #[tauri::command]
@@ -120,26 +101,38 @@ pub fn apply_profile(
         }
     }
 
-    // Apply default apps via duti (best-effort: skip silently if duti not installed)
+    // Apply default apps via duti
     if !profile.default_apps.is_empty() {
-        if let Some(duti) = find_duti_path() {
-            for default_app in &profile.default_apps {
-                for scheme in url_schemes_for_role(&default_app.role) {
-                    if let Err(e) = std::process::Command::new(&duti)
-                        .args(["-s", &default_app.bundle_id, scheme, "all"])
-                        .output()
-                    {
-                        eprintln!(
-                            "duti failed for {} ({}): {}",
-                            default_app.bundle_id, scheme, e
-                        );
+        match get_duti_path(&app) {
+            Ok(duti) => {
+                for default_app in &profile.default_apps {
+                    for scheme in url_schemes_for_role(&default_app.role) {
+                        let output = std::process::Command::new(&duti)
+                            .args(["-s", &default_app.bundle_id, scheme, "all"])
+                            .output();
+                        match output {
+                            Ok(result) if !result.status.success() => {
+                                warnings.push(format!(
+                                    "duti failed for {} ({}): {}",
+                                    default_app.bundle_id,
+                                    scheme,
+                                    String::from_utf8_lossy(&result.stderr).trim()
+                                ));
+                            }
+                            Err(e) => {
+                                warnings.push(format!(
+                                    "duti failed for {} ({}): {}",
+                                    default_app.bundle_id, scheme, e
+                                ));
+                            }
+                            _ => {}
+                        }
                     }
                 }
             }
-        } else {
-            eprintln!(
-                "duti not found; skipping default app changes. Install with: brew install duti"
-            );
+            Err(e) => {
+                warnings.push(format!("Skipping default app changes: {}", e));
+            }
         }
     }
 

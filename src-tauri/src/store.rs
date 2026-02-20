@@ -149,6 +149,7 @@ mod tests {
                 icon: None,
                 bundle_id: Some("com.apple.Safari".to_string()),
             }],
+            default_apps: Vec::new(),
             created_at: "2025-01-01T00:00:00Z".to_string(),
             updated_at: "2025-01-01T00:00:00Z".to_string(),
         }
@@ -347,6 +348,7 @@ mod tests {
                     bundle_id: None,
                 },
             ],
+            default_apps: Vec::new(),
             created_at: "2025-01-01T00:00:00Z".to_string(),
             updated_at: "2025-01-01T00:00:00Z".to_string(),
         };
