@@ -1,4 +1,6 @@
+import { getVersion } from "@tauri-apps/api/app";
 import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "../../components/atoms";
 import { SettingsForm } from "../../components/organisms/SettingsForm";
 import type { Settings } from "../../types/settings";
@@ -14,6 +16,26 @@ function SettingsPage({
   onUpdateSettings,
   onBack,
 }: SettingsPageProps) {
+  const [appVersion, setAppVersion] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getVersion()
+      .then((version) => {
+        if (isMounted) {
+          setAppVersion(version);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load app version:", error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
       <div
@@ -23,7 +45,7 @@ function SettingsPage({
         <Button
           variant="ghost"
           icon={<ArrowLeft className="h-4 w-4" />}
-          className="shadow-none!"
+          className="shadow-none"
           onClick={onBack}
         >
           Back
@@ -40,7 +62,7 @@ function SettingsPage({
       </div>
       <div className="border-t border-gray-200 bg-white px-6 py-3 dark:border-slate-700 dark:bg-slate-800">
         <p className="text-center text-xs text-gray-400 dark:text-slate-500">
-          DockSwitcher v0.3.0
+          DockSwitcher v{appVersion ?? "—"}
         </p>
       </div>
     </div>
