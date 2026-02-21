@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Trash2 } from "lucide-react";
 
-import { AppIcon } from "../../atoms";
+import { AppIcon } from "components/atoms";
 
 interface SortableAppItemProps {
   app: { name: string; path: string; icon?: string };

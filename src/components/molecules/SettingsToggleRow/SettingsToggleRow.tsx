@@ -1,4 +1,4 @@
-import { Toggle } from "../../atoms/Toggle";
+import { Toggle } from "components/atoms/Toggle";
 
 interface SettingsToggleRowProps {
   label: string;

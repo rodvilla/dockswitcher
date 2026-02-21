@@ -13,8 +13,8 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { Settings as SettingsIcon, Plus } from "lucide-react";
-import { SortableProfileItem } from "../../molecules/SortableProfileItem";
-import { Button } from "../../atoms/Button";
+import { SortableProfileItem } from "components/molecules/SortableProfileItem";
+import { Button } from "components/atoms/Button";
 import type { SidebarProps } from "./types";
 
 function Sidebar({

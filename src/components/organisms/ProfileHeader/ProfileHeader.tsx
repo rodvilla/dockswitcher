@@ -1,4 +1,4 @@
-import { Badge, Button } from "../../atoms";
+import { Badge, Button } from "components/atoms";
 
 interface ProfileHeaderProps {
   profileName: string;

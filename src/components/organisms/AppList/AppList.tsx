@@ -13,7 +13,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { SortableAppItem } from "../../molecules/SortableAppItem";
+import { SortableAppItem } from "components/molecules/SortableAppItem";
 import type { AppEntry } from "types/profile";
 
 interface AppListProps {

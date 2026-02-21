@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { waitFor } from "@testing-library/dom";
 import { invoke } from "@tauri-apps/api/core";
 import { useDock } from "./useDock";
-import type { AppEntry } from "../types";
+import type { AppEntry } from "types/profile";
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),

@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import type { AppEntry } from "../types";
+import type { AppEntry } from "types/profile";
 
 export function useDock() {
   const [loading, setLoading] = useState(false);
