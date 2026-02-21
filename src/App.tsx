@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Sidebar, ConfirmDialog } from "./components";
-import { ProfileView, SettingsView } from "./views";
-import type { ConfirmDialogState } from "./views";
+import { Sidebar } from "./components/organisms/Sidebar";
+import { ConfirmDialog } from "./components";
+import { MainLayout } from "./components/templates";
+import { ProfilePage, SettingsPage } from "./pages";
 import { useProfiles, useDock, useSettings } from "./hooks";
-import type { Profile } from "./types/profile";
+import type { Profile, AppEntry, ConfirmDialogState } from "./types";
 
 function App() {
   const {
@@ -147,6 +148,17 @@ function App() {
     }
   };
 
+  const handleReorderApps = async (id: string, apps: AppEntry[]) => {
+    try {
+      const profile = profiles.find((p) => p.id === id);
+      if (profile) {
+        await updateProfile({ ...profile, apps });
+      }
+    } catch (error) {
+      console.error("Failed to reorder apps:", error);
+    }
+  };
+
   const handleRenameProfile = async (profile: Profile, newName: string) => {
     try {
       await updateProfile({ ...profile, name: newName });
@@ -160,6 +172,14 @@ function App() {
       await updateProfile(updatedProfile);
     } catch (error) {
       console.error("Failed to update profile:", error);
+    }
+  };
+
+  const handleUpdateSettings = async (updatedSettings: Parameters<typeof updateSettings>[0]) => {
+    try {
+      await updateSettings(updatedSettings);
+    } catch (error) {
+      console.error("Failed to update settings:", error);
     }
   };
 
@@ -177,50 +197,51 @@ function App() {
   const selectedProfile = profiles.find((p) => p.id === selectedProfileId) || null;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white text-gray-900 dark:bg-slate-900 dark:text-white font-sans">
-      <Sidebar
-        profiles={profiles}
-        selectedProfileId={selectedProfileId}
-        activeProfileId={activeProfileId}
-        onSelectProfile={(id: string) => {
-          setSelectedProfileId(id);
-          setShowSettings(false);
-        }}
-        onCreateProfile={handleCreateProfile}
-        onDeleteProfile={handleDeleteProfile}
-        onRenameProfile={handleRenameProfile}
-        onReorderProfiles={reorderProfiles}
-        onOpenSettings={() => {
-          setShowSettings(true);
-          setSelectedProfileId(null);
-        }}
-      />
-
-      <main className="flex-1 overflow-hidden bg-gray-50 dark:bg-slate-900">
-        {showSettings ? (
-          <SettingsView
-            settings={settings}
-            onUpdateSettings={updateSettings}
-            onBack={() => {
-              setShowSettings(false);
-              if (profiles.length > 0) {
-                setSelectedProfileId(profiles[0].id);
-              }
-            }}
-          />
-        ) : (
-          <ProfileView
-            profile={selectedProfile}
-            activeProfileId={activeProfileId}
-            dutiAvailable={dutiAvailable}
-            onApplyProfile={handleApplyProfile}
-            onSaveDock={handleSaveDock}
-            onAddApp={handleAddApp}
-            onRemoveApp={handleRemoveApp}
-            onUpdateProfile={handleUpdateProfile}
-          />
-        )}
-      </main>
+    <MainLayout
+      sidebar={
+        <Sidebar
+          profiles={profiles}
+          selectedProfileId={selectedProfileId}
+          activeProfileId={activeProfileId}
+          onSelectProfile={(id: string) => {
+            setSelectedProfileId(id);
+            setShowSettings(false);
+          }}
+          onCreateProfile={handleCreateProfile}
+          onDeleteProfile={handleDeleteProfile}
+          onRenameProfile={handleRenameProfile}
+          onReorderProfiles={reorderProfiles}
+          onOpenSettings={() => {
+            setShowSettings(true);
+            setSelectedProfileId(null);
+          }}
+        />
+      }
+    >
+      {showSettings ? (
+        <SettingsPage
+          settings={settings}
+          onUpdateSettings={handleUpdateSettings}
+          onBack={() => {
+            setShowSettings(false);
+            if (profiles.length > 0) {
+              setSelectedProfileId(profiles[0].id);
+            }
+          }}
+        />
+      ) : (
+        <ProfilePage
+          profile={selectedProfile}
+          activeProfileId={activeProfileId}
+          dutiAvailable={dutiAvailable}
+          onApplyProfile={handleApplyProfile}
+          onSaveDock={handleSaveDock}
+          onAddApp={handleAddApp}
+          onRemoveApp={handleRemoveApp}
+          onReorderApps={handleReorderApps}
+          onUpdateProfile={handleUpdateProfile}
+        />
+      )}
 
       <ConfirmDialog
         open={confirmDialogState.open}
@@ -231,8 +252,8 @@ function App() {
         onConfirm={() => confirmDialogState.action()}
         onCancel={() => setConfirmDialogState((prev) => ({ ...prev, open: false }))}
       />
-    </div>
+    </MainLayout>
   );
 }
 
-export default App;
+export { App };
