@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { waitFor } from "@testing-library/dom";
 import { invoke } from "@tauri-apps/api/core";
 import { useProfiles } from "./useProfiles";
-import type { Profile } from "../types";
+import type { Profile } from "types/profile";
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
@@ -17,6 +17,7 @@ describe("useProfiles", () => {
       id: "profile-1",
       name: "Work",
       apps: [],
+      default_apps: [],
       created_at: "2024-01-01T00:00:00Z",
       updated_at: "2024-01-01T00:00:00Z",
     },

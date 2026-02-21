@@ -1,6 +1,12 @@
 use crate::dock::{get_dockutil_path, parse_dockutil_output};
+use crate::duti::{get_duti_path, url_schemes_for_role};
 use crate::store::{AppEntry, Store};
 use crate::tray::build_tray_menu;
+
+#[tauri::command]
+pub fn check_duti(app: tauri::AppHandle) -> Result<bool, String> {
+    Ok(get_duti_path(&app).is_ok())
+}
 
 #[tauri::command]
 pub fn check_dockutil(app: tauri::AppHandle) -> Result<bool, String> {
@@ -92,6 +98,43 @@ pub fn apply_profile(
         let store = state.lock().map_err(|e| e.to_string())?;
         if let Ok(menu) = build_tray_menu(&app, &store) {
             let _ = tray.set_menu(Some(menu));
+        }
+    }
+
+    // Apply default apps via duti
+    if !profile.default_apps.is_empty() {
+        match get_duti_path(&app) {
+            Ok(duti) => {
+                for default_app in &profile.default_apps {
+                    for scheme in url_schemes_for_role(&default_app.role) {
+                        // Use 2 args: duti -s <bundle_id> <scheme> sets URL scheme handler
+                        // With 3 args, duti interprets the second arg as a UTI, not a URL scheme
+                        let output = std::process::Command::new(&duti)
+                            .args(["-s", &default_app.bundle_id, scheme])
+                            .output();
+                        match output {
+                            Ok(result) if !result.status.success() => {
+                                warnings.push(format!(
+                                    "duti failed for {} ({}): {}",
+                                    default_app.bundle_id,
+                                    scheme,
+                                    String::from_utf8_lossy(&result.stderr).trim()
+                                ));
+                            }
+                            Err(e) => {
+                                warnings.push(format!(
+                                    "duti failed for {} ({}): {}",
+                                    default_app.bundle_id, scheme, e
+                                ));
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                warnings.push(format!("Skipping default app changes: {}", e));
+            }
         }
     }
 

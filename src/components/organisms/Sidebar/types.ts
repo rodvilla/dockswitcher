@@ -1,4 +1,4 @@
-import type { Profile } from '../../types/profile';
+import type { Profile } from "types/profile";
 
 export interface SidebarProps {
   profiles: Profile[];

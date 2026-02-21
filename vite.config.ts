@@ -1,4 +1,6 @@
 import { defineConfig } from "vite";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -8,6 +10,15 @@ const host = process.env.TAURI_DEV_HOST;
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": resolve(dirname(fileURLToPath(import.meta.url)), "src"),
+      types: resolve(dirname(fileURLToPath(import.meta.url)), "src/types"),
+      hooks: resolve(dirname(fileURLToPath(import.meta.url)), "src/hooks"),
+      components: resolve(dirname(fileURLToPath(import.meta.url)), "src/components"),
+      pages: resolve(dirname(fileURLToPath(import.meta.url)), "src/pages"),
+    },
+  },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //

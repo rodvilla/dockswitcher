@@ -26,6 +26,7 @@ pub fn create_profile(
         id: uuid::Uuid::new_v4().to_string(),
         name,
         apps: Vec::new(),
+        default_apps: Vec::new(),
         created_at: chrono::Utc::now().to_rfc3339(),
         updated_at: chrono::Utc::now().to_rfc3339(),
     };
@@ -43,6 +44,7 @@ pub fn update_profile(
     if let Some(p) = store.data.profiles.iter_mut().find(|p| p.id == profile.id) {
         p.name = profile.name;
         p.apps = profile.apps;
+        p.default_apps = profile.default_apps;
         p.updated_at = chrono::Utc::now().to_rfc3339();
     }
     store.save().map_err(|e| e.to_string())?;

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
-import type { Profile } from '../../types/profile';
+import type { Profile } from "types/profile";
 
 interface SortableProfileItemProps {
   profile: Profile;
@@ -15,7 +15,7 @@ interface SortableProfileItemProps {
   onRenameCancel: () => void;
 }
 
-const SortableProfileItem = ({
+export const SortableProfileItem = ({
   profile,
   isSelected,
   isActive,
@@ -108,5 +108,3 @@ const SortableProfileItem = ({
     </button>
   );
 };
-
-export default SortableProfileItem;

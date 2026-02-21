@@ -3,7 +3,7 @@ import { renderHook, act } from "@testing-library/react";
 import { waitFor } from "@testing-library/dom";
 import { invoke } from "@tauri-apps/api/core";
 import { useDock } from "./useDock";
-import type { AppEntry } from "../types";
+import type { AppEntry } from "types/profile";
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
@@ -114,5 +114,31 @@ describe("useDock", () => {
 
     expect(available).toBe(true);
     expect(mockInvoke).toHaveBeenCalledWith("check_dockutil");
+  });
+
+  it("checkDuti invokes command", async () => {
+    mockInvoke.mockResolvedValueOnce(true);
+
+    const { result } = renderHook(() => useDock());
+
+    await waitFor(() => expect(result.current).not.toBeNull());
+
+    const available = await result.current.checkDuti();
+
+    expect(available).toBe(true);
+    expect(mockInvoke).toHaveBeenCalledWith("check_duti");
+  });
+
+  it("checkDuti returns false when not available", async () => {
+    mockInvoke.mockResolvedValueOnce(false);
+
+    const { result } = renderHook(() => useDock());
+
+    await waitFor(() => expect(result.current).not.toBeNull());
+
+    const available = await result.current.checkDuti();
+
+    expect(available).toBe(false);
+    expect(mockInvoke).toHaveBeenCalledWith("check_duti");
   });
 });

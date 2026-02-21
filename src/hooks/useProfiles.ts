@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import type { Profile } from "../types";
+import type { Profile } from "types/profile";
 
 export function useProfiles() {
   const [profiles, setProfiles] = useState<Profile[]>([]);

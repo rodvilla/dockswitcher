@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import type { AppEntry } from "../types";
+import type { AppEntry } from "types/profile";
 
 export function useDock() {
   const [loading, setLoading] = useState(false);
@@ -39,6 +39,10 @@ export function useDock() {
     return invoke<boolean>("check_dockutil");
   }, []);
 
+  const checkDuti = useCallback(async () => {
+    return invoke<boolean>("check_duti");
+  }, []);
+
   return {
     loading,
     getCurrentDockApps,
@@ -46,5 +50,6 @@ export function useDock() {
     addAppToProfile,
     removeAppFromProfile,
     checkDockutil,
+    checkDuti,
   };
 }
