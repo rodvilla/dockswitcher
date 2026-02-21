@@ -21,9 +21,13 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "types": ["./src/types/index.ts"],
       "types/*": ["./src/types/*"],
+      "hooks": ["./src/hooks/index.ts"],
       "hooks/*": ["./src/hooks/*"],
+      "components": ["./src/components/index.ts"],
       "components/*": ["./src/components/*"],
+      "pages": ["./src/pages/index.ts"],
       "pages/*": ["./src/pages/*"]
     }
   },

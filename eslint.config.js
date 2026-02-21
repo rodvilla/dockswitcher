@@ -45,6 +45,11 @@ export default [
       react: {
         version: '19.0',
       },
+      'import/resolver': {
+        typescript: {
+          project: './tsconfig.json',
+        },
+      },
     },
     rules: {
       ...react.configs.recommended.rules,
@@ -62,6 +67,12 @@ export default [
         },
       ],
       'import/order': 'off',
+      'import/no-relative-parent-imports': [
+        'error',
+        {
+          ignore: ['../'],
+        },
+      ],
       'react-hooks/set-state-in-effect': 'off',
       'react/no-unescaped-entities': 'off',
       'jsx-a11y/click-events-have-key-events': 'off',
