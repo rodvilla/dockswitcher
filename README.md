@@ -4,7 +4,30 @@
 [![GitHub Release](https://img.shields.io/github/v/release/rodvilla/dockswitcher?include_prereleases&style=flat-square)](https://github.com/rodvilla/dockswitcher/releases/latest)
 [![License](https://img.shields.io/github/license/rodvilla/dockswitcher?style=flat-square)](LICENSE)
 
-macOS menu bar app to switch Dock profiles.
+**macOS menu bar app to create and switch between Dock profiles.**
+
+DockSwitcher lets you define multiple Dock configurations for different contexts—work, personal, development, etc.—and switch between them instantly from the menu bar. Each profile can include its own set of Dock applications and default URL scheme handlers (browser, email client, etc.).
+
+## Screenshots
+
+<table>
+  <tr>
+    <td><strong>Menu Bar Quick Switch</strong></td>
+    <td><strong>Profile Management</strong></td>
+  </tr>
+  <tr>
+    <td><img src="img/menubar.png" alt="Menu bar dropdown" width="300" /></td>
+    <td><img src="img/app.png" alt="Main application window" width="400" /></td>
+  </tr>
+</table>
+
+## Features
+
+- **Multiple Dock Profiles**: Create and save different Dock configurations for various workflows
+- **Quick Menu Bar Switching**: Change profiles instantly from the macOS menu bar without opening the app
+- **Default Applications per Profile**: Automatically set your preferred browser, email client, FTP handler, or calendar app when a profile is activated
+- **Drag & Drop App Management**: Reorder apps within a profile with sortable drag-and-drop
+- **Live Dock Capture**: Save your current Dock apps directly into any profile
 
 ## Building from source
 
