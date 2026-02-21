@@ -1,5 +1,5 @@
 import { SettingsToggleRow } from "../../molecules/SettingsToggleRow";
-import type { Settings } from "../../../types/settings";
+import type { Settings } from "types/settings";
 
 interface SettingsFormProps {
   settings: Settings;

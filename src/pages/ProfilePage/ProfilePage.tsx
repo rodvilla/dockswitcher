@@ -1,9 +1,5 @@
-import {
-  ProfileHeader,
-  AppList,
-  DefaultAppsSection,
-} from "../../components/organisms";
-import type { Profile, AppEntry } from "../../types/profile";
+import { ProfileHeader, AppList, DefaultAppsSection } from "components/organisms";
+import type { Profile, AppEntry } from "types/profile";
 
 interface ProfilePageProps {
   profile: Profile | null;

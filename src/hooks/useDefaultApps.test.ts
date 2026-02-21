@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, type MockedFunction } from "vitest";
 import { useDefaultApps } from "./useDefaultApps";
-import type { Profile, AppEntry, DefaultApp } from "../types/profile";
+import type { Profile, AppEntry, DefaultApp } from "types/profile";
 
 const createMockProfile = (
   apps: AppEntry[] = [],

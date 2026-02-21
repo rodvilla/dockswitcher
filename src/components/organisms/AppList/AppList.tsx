@@ -14,7 +14,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { SortableAppItem } from "../../molecules/SortableAppItem";
-import type { AppEntry } from "../../../types/profile";
+import type { AppEntry } from "types/profile";
 
 interface AppListProps {
   apps: AppEntry[];
