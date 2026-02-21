@@ -23,7 +23,7 @@ export function SortableAppItem({ app, id, onRemove }: SortableAppItemProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? 50 : "auto",
+    zIndex: isDragging ? 40 : "auto",
     position: "relative" as const,
   };
 

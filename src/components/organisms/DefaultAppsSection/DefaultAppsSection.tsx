@@ -36,13 +36,33 @@ function DefaultAppsSection({
   };
 
   const getRoleLabel = (role: string) => {
-    return defaultAppRoles.find((r) => r.value === role)?.label ?? role;
+    return (
+      defaultAppRoles.find((r) => r.value === role)?.label ??
+      `${role.charAt(0).toUpperCase()}${role.slice(1)}`
+    );
   };
 
   const getAppName = (bundleId: string) => {
     const app = appsWithBundleId.find((a) => a.bundle_id === bundleId);
     return app?.name ?? bundleId;
   };
+
+  const appOptions = appsWithBundleId
+    .filter((app) => app.bundle_id)
+    .map((app) => ({
+      value: app.bundle_id ?? "",
+      label: app.name,
+    }));
+  const appOptionsWithFallback = appOptions.length
+    ? appOptions
+    : [{ value: "", label: "No apps with bundle id", disabled: true }];
+  const roleOptions = availableRoles.map((role) => ({
+    value: role.value,
+    label: getRoleLabel(role.value),
+  }));
+  const roleOptionsWithFallback = roleOptions.length
+    ? roleOptions
+    : [{ value: "", label: "No roles available", disabled: true }];
 
   return (
     <div className="space-y-4">
@@ -102,14 +122,14 @@ function DefaultAppsSection({
           <div className="grid grid-cols-2 gap-3">
             <Select
               label="App"
-              options={appsWithBundleId.map((a) => a.bundle_id ?? "")}
+              options={appOptionsWithFallback}
               value={newDefaultBundleId}
               onChange={setNewDefaultBundleId}
               placeholder="Select app"
             />
             <Select
               label="Role"
-              options={availableRoles.map((r) => r.value)}
+              options={roleOptionsWithFallback}
               value={newDefaultRole}
               onChange={setNewDefaultRole}
               placeholder="Select role"

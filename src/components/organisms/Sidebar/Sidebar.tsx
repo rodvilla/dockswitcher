@@ -92,37 +92,39 @@ function Sidebar({
   };
 
   return (
-    <div className="flex h-full w-56 flex-col border-r border-gray-200 bg-gray-100/80 pt-8 backdrop-blur-xl dark:border-slate-700 dark:bg-slate-800/80">
+    <div className="flex h-full w-56 flex-col border-r border-gray-200 bg-gray-100/80 pt-8 backdrop-blur-xl dark:border-slate-700 dark:bg-slate-800/80 z-100">
       <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={profiles.map((p) => p.id)}
-            strategy={verticalListSortingStrategy}
+        <div className="flex-1">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
           >
-            {profiles.map((profile) => (
-              <SortableProfileItem
-                key={profile.id}
-                profile={profile}
-                isSelected={selectedProfileId === profile.id}
-                isActive={activeProfileId === profile.id}
-                onSelect={() => onSelectProfile(profile.id)}
-                onContextMenu={handleContextMenu}
-                isRenaming={renamingId === profile.id}
-                onRenameSubmit={(newName) => {
-                  if (newName.trim() && newName !== profile.name) {
-                    onRenameProfile(profile, newName.trim());
-                  }
-                  setRenamingId(null);
-                }}
-                onRenameCancel={() => setRenamingId(null)}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+            <SortableContext
+              items={profiles.map((p) => p.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {profiles.map((profile) => (
+                <SortableProfileItem
+                  key={profile.id}
+                  profile={profile}
+                  isSelected={selectedProfileId === profile.id}
+                  isActive={activeProfileId === profile.id}
+                  onSelect={() => onSelectProfile(profile.id)}
+                  onContextMenu={handleContextMenu}
+                  isRenaming={renamingId === profile.id}
+                  onRenameSubmit={(newName) => {
+                    if (newName.trim() && newName !== profile.name) {
+                      onRenameProfile(profile, newName.trim());
+                    }
+                    setRenamingId(null);
+                  }}
+                  onRenameCancel={() => setRenamingId(null)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
 
         {isCreating && (
           <div className="mx-2 mb-2 rounded-md bg-white p-2 ring-2 ring-blue-600 dark:bg-slate-700">
@@ -145,7 +147,7 @@ function Sidebar({
             variant="ghost"
             size="lg"
             icon={<Plus className="h-4 w-4" />}
-            className="w-full justify-start"
+            className="w-full justify-start shadow-none!"
             onClick={() => setIsCreating(true)}
           >
             Add Profile
@@ -156,7 +158,7 @@ function Sidebar({
           variant="ghost"
           size="lg"
           icon={<SettingsIcon className="h-4 w-4" />}
-          className="w-full justify-start"
+          className="w-full justify-start shadow-none!"
           onClick={onOpenSettings}
         >
           Settings
@@ -165,7 +167,7 @@ function Sidebar({
 
       {contextMenu && (
         <div
-          className="fixed z-50 min-w-[120px] overflow-hidden rounded-lg bg-white/90 p-1 text-left shadow-xl backdrop-blur-sm ring-1 ring-black/5 dark:bg-slate-800/90 dark:ring-white/10"
+          className="fixed z-120 min-w-30 overflow-hidden rounded-lg bg-white p-1 text-left shadow-xl backdrop-blur-sm ring-1 ring-black/5 dark:bg-slate-800/90 dark:ring-white/10"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
           <button

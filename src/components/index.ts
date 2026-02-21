@@ -1,1 +1,1 @@
-export { ConfirmDialog } from './ConfirmDialog';
+export { ConfirmDialog } from "./molecules/ConfirmDialog";

@@ -1,5 +1,3 @@
-import React from "react";
-
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
@@ -11,7 +9,7 @@ interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
-const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+function ConfirmDialog({
   open,
   title,
   message,
@@ -20,14 +18,16 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   destructive = false,
   onConfirm,
   onCancel,
-}) => {
+}: ConfirmDialogProps) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
+      <button
+        type="button"
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onCancel}
+        aria-label="Close dialog"
       />
       <div className="relative z-10 w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-slate-800 dark:ring-white/10">
         <div className="p-6">
@@ -61,6 +61,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export { ConfirmDialog };

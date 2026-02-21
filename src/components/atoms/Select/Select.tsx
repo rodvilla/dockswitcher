@@ -1,8 +1,14 @@
 import { ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 
+interface SelectOption<T extends string> {
+  value: T;
+  label: string;
+  disabled?: boolean;
+}
+
 interface SelectProps<T extends string> {
-  options: T[];
+  options: SelectOption<T>[];
   value: T | null;
   onChange: (value: T) => void;
   placeholder?: string;
@@ -33,13 +39,13 @@ function Select<T extends string>({
       case "Enter":
       case " ":
         event.preventDefault();
-        if (isOpen && highlightedIndex >= 0) {
-          onChange(options[highlightedIndex]);
-          setIsOpen(false);
-          setHighlightedIndex(-1);
-        } else {
-          setIsOpen((prev) => !prev);
-        }
+          if (isOpen && highlightedIndex >= 0) {
+            onChange(options[highlightedIndex].value);
+            setIsOpen(false);
+            setHighlightedIndex(-1);
+          } else {
+            setIsOpen((prev) => !prev);
+          }
         break;
       case "ArrowDown":
         event.preventDefault();
@@ -114,7 +120,7 @@ function Select<T extends string>({
         }`}
       >
         <span className={value ? "text-gray-900 dark:text-gray-100" : "text-gray-500"}>
-          {value ?? placeholder}
+          {options.find((option) => option.value === value)?.label ?? placeholder}
         </span>
         <ChevronDown
           className={`h-4 w-4 text-gray-500 transition-transform ${
@@ -130,33 +136,41 @@ function Select<T extends string>({
         >
           {options.map((option, index) => (
             <div
-              key={option}
+              key={option.value}
               role="option"
-              aria-selected={option === value}
+              aria-selected={option.value === value}
               tabIndex={0}
               onClick={() => {
-                onChange(option);
+                if (option.disabled) return;
+                onChange(option.value);
                 setIsOpen(false);
                 setHighlightedIndex(-1);
               }}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  onChange(option);
+                  if (option.disabled) return;
+                  onChange(option.value);
                   setIsOpen(false);
                   setHighlightedIndex(-1);
                 }
               }}
               onMouseEnter={() => setHighlightedIndex(index)}
               className={`cursor-pointer px-3 py-2 text-sm transition-colors ${
-                option === value
+                option.value === value
                   ? "bg-blue-600 text-white"
                   : index === highlightedIndex
                     ? "bg-gray-100 text-gray-900 dark:bg-slate-700 dark:text-white"
-                    : "text-gray-700 dark:text-gray-300"
-              } ${option === value ? "" : "hover:bg-gray-50 dark:hover:bg-slate-700"}`}
+                    : option.disabled
+                      ? "text-gray-300 dark:text-slate-500"
+                      : "text-gray-700 dark:text-gray-300"
+              } ${
+                option.value === value || option.disabled
+                  ? ""
+                  : "hover:bg-gray-50 dark:hover:bg-slate-700"
+              }`}
             >
-              {option}
+              {option.label}
             </div>
           ))}
         </div>
@@ -166,4 +180,4 @@ function Select<T extends string>({
 }
 
 export { Select };
-export type { SelectProps };
+export type { SelectProps, SelectOption };

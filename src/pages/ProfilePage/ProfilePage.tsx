@@ -1,4 +1,8 @@
-import { ProfileHeader, AppList, DefaultAppsSection } from "../../components/organisms";
+import {
+  ProfileHeader,
+  AppList,
+  DefaultAppsSection,
+} from "../../components/organisms";
 import type { Profile, AppEntry } from "../../types/profile";
 
 interface ProfilePageProps {
@@ -26,7 +30,7 @@ function ProfilePage({
 }: ProfilePageProps) {
   if (!profile) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center">
+      <div className="flex flex-1 flex-col min-h-0 items-center justify-center">
         <div className="text-center">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
             No Profile Selected
@@ -40,14 +44,15 @@ function ProfilePage({
   }
 
   const isActive = profile.id === activeProfileId;
-  const handleReorderApps = (apps: AppEntry[]) => onReorderApps(profile.id, apps);
+  const handleReorderApps = (apps: AppEntry[]) =>
+    onReorderApps(profile.id, apps);
   const handleRemoveApp = (index: number) => onRemoveApp(profile.id, index);
   const handleAddApp = () => onAddApp(profile.id);
   const handleSaveDock = () => onSaveDock(profile.id);
   const handleApplyProfile = () => onApplyProfile(profile.id);
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
+    <div className="flex flex-1 flex-col max-h-full overflow-hidden">
       <ProfileHeader
         profileName={profile.name}
         appCount={profile.apps.length}
@@ -55,7 +60,7 @@ function ProfilePage({
         onSaveDock={handleSaveDock}
         onApplyProfile={handleApplyProfile}
       />
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-6 pb-20 space-y-6">
         <div className="space-y-4">
           <h3 className="text-sm font-medium text-gray-700 dark:text-slate-300">
             Apps

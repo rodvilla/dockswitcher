@@ -1,6 +1,6 @@
 [package]
 name = "dockswitcher"
-version = "0.2.0"
+version = "0.3.0"
 description = "macOS menu bar app to switch Dock profiles"
 authors = ["Rodrigo Villa"]
 edition = "2021"
