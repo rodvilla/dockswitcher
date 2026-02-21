@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { useState, useRef, useEffect, type KeyboardEvent } from "react";
+import { useState, useRef, useEffect, useId, type KeyboardEvent } from "react";
 
 interface SelectOption<T extends string> {
   value: T;
@@ -31,6 +31,9 @@ function Select<T extends string>({
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const generatedId = useId();
+  const selectId = id ?? generatedId;
+  const labelId = label ? `${selectId}-label` : undefined;
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (disabled) return;
@@ -97,8 +100,8 @@ function Select<T extends string>({
     >
       {label && (
         <label
-          id={`${id}-label`}
-          htmlFor={id}
+          id={labelId}
+          htmlFor={selectId}
           className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           {label}
@@ -106,11 +109,11 @@ function Select<T extends string>({
       )}
       <button
         type="button"
-        id={id}
+        id={selectId}
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-labelledby={label ? `${id}-label` : undefined}
+        aria-labelledby={labelId}
         onClick={() => !disabled && setIsOpen((prev) => !prev)}
         onKeyDown={handleKeyDown}
         className={`flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-gray-200 ${

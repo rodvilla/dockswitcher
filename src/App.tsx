@@ -249,7 +249,14 @@ function App() {
         message={confirmDialogState.message}
         confirmLabel={confirmDialogState.confirmLabel}
         destructive={confirmDialogState.isDelete}
-        onConfirm={() => confirmDialogState.action()}
+        onConfirm={async () => {
+          try {
+            await confirmDialogState.action();
+            setConfirmDialogState((prev) => ({ ...prev, open: false }));
+          } catch (error) {
+            console.error("Failed to confirm dialog action:", error);
+          }
+        }}
         onCancel={() => setConfirmDialogState((prev) => ({ ...prev, open: false }))}
       />
     </MainLayout>

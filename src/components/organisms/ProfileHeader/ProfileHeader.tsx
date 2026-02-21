@@ -28,7 +28,7 @@ function ProfileHeader({
           {profileName}
         </h2>
         <span className="text-sm text-gray-400 dark:text-slate-500">
-          {appCount} apps
+          {appCount} {appCount === 1 ? "app" : "apps"}
         </span>
       </div>
       <div className="flex items-center gap-2">

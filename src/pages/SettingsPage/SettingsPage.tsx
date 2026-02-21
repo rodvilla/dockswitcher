@@ -1,9 +1,9 @@
 import { getVersion } from "@tauri-apps/api/app";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "../../components/atoms";
-import { SettingsForm } from "../../components/organisms/SettingsForm";
-import type { Settings } from "../../types/settings";
+import { Button } from "components/atoms";
+import { SettingsForm } from "components/organisms/SettingsForm";
+import type { Settings } from "types/settings";
 
 interface SettingsPageProps {
   settings: Settings;

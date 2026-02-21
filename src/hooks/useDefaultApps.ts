@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
-import type { Profile, AppEntry, DefaultApp } from "../types/profile";
+import type { Profile, AppEntry, DefaultApp } from "types/profile";
 
 const DEFAULT_APP_ROLES: { value: string; label: string }[] = [
   { value: "browser", label: "Browser (HTTP/HTTPS)" },
@@ -18,7 +18,10 @@ export function useDefaultApps(
 
   const appsWithBundleId = useMemo(() => {
     if (!profile) return [];
-    return profile.apps.filter((app: AppEntry) => app.bundle_id);
+    return profile.apps.filter(
+      (app: AppEntry): app is AppEntry & { bundle_id: string } =>
+        Boolean(app.bundle_id)
+    );
   }, [profile]);
 
   const availableRoles = useMemo(() => {

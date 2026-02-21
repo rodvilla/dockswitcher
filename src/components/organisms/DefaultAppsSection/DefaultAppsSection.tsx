@@ -1,8 +1,8 @@
 import { Plus, X, AlertTriangle } from "lucide-react";
-import { Select, Button } from "../../atoms";
-import { DefaultAppCard } from "../../molecules/DefaultAppCard";
-import { useDefaultApps } from "../../../hooks/useDefaultApps";
-import type { Profile } from "../../../types/profile";
+import { Select, Button } from "components/atoms";
+import { DefaultAppCard } from "components/molecules/DefaultAppCard";
+import { useDefaultApps } from "hooks/useDefaultApps";
+import type { Profile } from "types/profile";
 
 interface DefaultAppsSectionProps {
   profile: Profile;
@@ -47,12 +47,10 @@ function DefaultAppsSection({
     return app?.name ?? bundleId;
   };
 
-  const appOptions = appsWithBundleId
-    .filter((app) => app.bundle_id)
-    .map((app) => ({
-      value: app.bundle_id ?? "",
-      label: app.name,
-    }));
+  const appOptions = appsWithBundleId.map((app) => ({
+    value: app.bundle_id,
+    label: app.name,
+  }));
   const appOptionsWithFallback = appOptions.length
     ? appOptions
     : [{ value: "", label: "No apps with bundle id", disabled: true }];
