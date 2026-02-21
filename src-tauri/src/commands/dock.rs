@@ -107,8 +107,10 @@ pub fn apply_profile(
             Ok(duti) => {
                 for default_app in &profile.default_apps {
                     for scheme in url_schemes_for_role(&default_app.role) {
+                        // Use 2 args: duti -s <bundle_id> <scheme> sets URL scheme handler
+                        // With 3 args, duti interprets the second arg as a UTI, not a URL scheme
                         let output = std::process::Command::new(&duti)
-                            .args(["-s", &default_app.bundle_id, scheme, "all"])
+                            .args(["-s", &default_app.bundle_id, scheme])
                             .output();
                         match output {
                             Ok(result) if !result.status.success() => {
