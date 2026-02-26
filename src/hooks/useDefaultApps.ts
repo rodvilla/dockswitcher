@@ -8,6 +8,13 @@ const DEFAULT_APP_ROLES: { value: string; label: string }[] = [
   { value: "calendar", label: "Calendar (webcal)" },
 ];
 
+function resolveRoleLabel(role: string): string {
+  return (
+    DEFAULT_APP_ROLES.find((r) => r.value === role)?.label ??
+    `${role.charAt(0).toUpperCase()}${role.slice(1)}`
+  );
+}
+
 export function useDefaultApps(
   profile: Profile | null,
   onUpdateProfile: (profile: Profile) => void
@@ -67,6 +74,35 @@ export function useDefaultApps(
     }
   }, [appsWithBundleId, availableRoles]);
 
+  const appOptions = useMemo(
+    () =>
+      appsWithBundleId.length
+        ? appsWithBundleId.map((app) => ({ value: app.bundle_id, label: app.name }))
+        : [{ value: "", label: "No apps with bundle id", disabled: true }],
+    [appsWithBundleId]
+  );
+
+  const roleOptions = useMemo(
+    () =>
+      availableRoles.length
+        ? availableRoles.map((role) => ({ value: role.value, label: resolveRoleLabel(role.value) }))
+        : [{ value: "", label: "No roles available", disabled: true }],
+    [availableRoles]
+  );
+
+  const getRoleLabel = useCallback(
+    (role: string) => resolveRoleLabel(role),
+    []
+  );
+
+  const getAppName = useCallback(
+    (bundleId: string) => {
+      const app = appsWithBundleId.find((a: AppEntry) => a.bundle_id === bundleId);
+      return app?.name ?? bundleId;
+    },
+    [appsWithBundleId]
+  );
+
   return {
     showAddDefault,
     setShowAddDefault,
@@ -74,11 +110,14 @@ export function useDefaultApps(
     setNewDefaultBundleId,
     newDefaultRole,
     setNewDefaultRole,
-    defaultAppRoles: DEFAULT_APP_ROLES,
     availableRoles,
     appsWithBundleId,
     handleAddDefaultApp,
     handleRemoveDefaultApp,
     initAddForm,
+    getRoleLabel,
+    getAppName,
+    appOptions,
+    roleOptions,
   };
 }

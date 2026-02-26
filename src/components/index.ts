@@ -1,1 +1,4 @@
-export { ConfirmDialog } from "./molecules/ConfirmDialog";
+export * from "./atoms";
+export * from "./molecules";
+export * from "./organisms";
+export * from "./templates";

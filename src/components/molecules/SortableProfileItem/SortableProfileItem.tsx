@@ -15,7 +15,7 @@ interface SortableProfileItemProps {
   onRenameCancel: () => void;
 }
 
-export const SortableProfileItem = ({
+function SortableProfileItem({
   profile,
   isSelected,
   isActive,
@@ -24,7 +24,7 @@ export const SortableProfileItem = ({
   isRenaming,
   onRenameSubmit,
   onRenameCancel,
-}: SortableProfileItemProps) => {
+}: SortableProfileItemProps) {
   const {
     attributes,
     listeners,
@@ -108,3 +108,5 @@ export const SortableProfileItem = ({
     </button>
   );
 };
+
+export { SortableProfileItem };

@@ -30,19 +30,10 @@ pub struct Profile {
     pub updated_at: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct Settings {
     pub launch_at_login: bool,
     pub confirm_before_switch: bool,
-}
-
-impl Default for Settings {
-    fn default() -> Self {
-        Self {
-            launch_at_login: false,
-            confirm_before_switch: false,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

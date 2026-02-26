@@ -42,13 +42,13 @@ function Select<T extends string>({
       case "Enter":
       case " ":
         event.preventDefault();
-          if (isOpen && highlightedIndex >= 0) {
-            onChange(options[highlightedIndex].value);
-            setIsOpen(false);
-            setHighlightedIndex(-1);
-          } else {
-            setIsOpen((prev) => !prev);
-          }
+        if (isOpen && highlightedIndex >= 0) {
+          onChange(options[highlightedIndex].value);
+          setIsOpen(false);
+          setHighlightedIndex(-1);
+        } else {
+          setIsOpen((prev) => !prev);
+        }
         break;
       case "ArrowDown":
         event.preventDefault();
