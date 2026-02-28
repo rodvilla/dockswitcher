@@ -99,7 +99,7 @@ export function useAppController() {
           },
         });
       } else {
-        apply();
+        apply().catch((error) => console.error("Failed to apply profile:", error));
       }
     },
     [applyProfile, profiles, settings.confirm_before_switch],

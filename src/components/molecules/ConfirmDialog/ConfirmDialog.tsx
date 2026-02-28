@@ -1,4 +1,4 @@
-import { Button } from "../../atoms";
+import { Button } from "components/atoms";
 
 interface ConfirmDialogProps {
   open: boolean;

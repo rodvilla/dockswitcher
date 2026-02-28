@@ -84,6 +84,14 @@ pub fn reorder_profiles(
         store.data.profiles.iter().map(|p| p.id.clone()).collect();
     let provided_ids: std::collections::HashSet<_> = ids.iter().cloned().collect();
 
+    if ids.len() != store.data.profiles.len() {
+        return Err(format!(
+            "Expected {} IDs, got {}",
+            store.data.profiles.len(),
+            ids.len()
+        ));
+    }
+
     if existing_ids != provided_ids {
         let missing: Vec<_> = existing_ids.difference(&provided_ids).collect();
         let extra: Vec<_> = provided_ids.difference(&existing_ids).collect();
@@ -292,7 +300,7 @@ mod tests {
         let _p2 = create_profile("Two".to_string(), state.clone()).unwrap();
 
         let error = reorder_profiles(vec![p1.id.clone()], state).unwrap_err();
-        assert!(error.contains("Missing IDs"));
+        assert!(error.contains("Expected") || error.contains("Missing IDs"));
 
         cleanup(&path);
     }
@@ -311,7 +319,26 @@ mod tests {
             state,
         )
         .unwrap_err();
-        assert!(error.contains("Invalid IDs"));
+        assert!(error.contains("Expected") || error.contains("Invalid IDs"));
+
+        cleanup(&path);
+    }
+
+    #[test]
+    fn reorder_profiles_duplicate_ids_returns_error() {
+        let path = temp_store_path();
+        let app = test_app_with_store(path.clone());
+        let state = app.state::<Mutex<Store>>();
+
+        let p1 = create_profile("One".to_string(), state.clone()).unwrap();
+        let p2 = create_profile("Two".to_string(), state.clone()).unwrap();
+
+        let error = reorder_profiles(
+            vec![p1.id.clone(), p1.id.clone(), p2.id.clone()],
+            state,
+        )
+        .unwrap_err();
+        assert!(error.contains("Expected"));
 
         cleanup(&path);
     }

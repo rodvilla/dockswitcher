@@ -107,6 +107,6 @@ function SortableProfileItem({
       </div>
     </button>
   );
-};
+}
 
 export { SortableProfileItem };
