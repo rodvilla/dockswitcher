@@ -12,12 +12,12 @@ DockSwitcher lets you define multiple Dock configurations for different contexts
 
 <table>
   <tr>
-    <td><strong>Menu Bar Quick Switch</strong></td>
     <td><strong>Profile Management</strong></td>
+    <td><strong>Menu Bar Quick Switch</strong></td>
   </tr>
   <tr>
-    <td><img src="img/menubar.png" alt="Menu bar dropdown" width="300" /></td>
-    <td><img src="img/app.png" alt="Main application window" width="400" /></td>
+    <td><img src="img/app.png" alt="Main application window" width="500" /></td>
+    <td><img src="img/menubar.png" alt="Menu bar dropdown" width="200" /></td>
   </tr>
 </table>
 
