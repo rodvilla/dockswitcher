@@ -11,7 +11,10 @@ use tauri::{tray::TrayIconBuilder, Manager, RunEvent, WindowEvent};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let store = Store::load().map_err(|e| e.to_string()).unwrap_or_default();
+    let store = Store::load().unwrap_or_else(|e| {
+        eprintln!("Failed to load store: {e}");
+        Store::default()
+    });
 
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
