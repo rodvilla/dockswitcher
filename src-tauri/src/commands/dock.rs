@@ -1,6 +1,6 @@
 use crate::dock::{get_dockutil_path, parse_dockutil_output};
 use crate::duti::{get_duti_path, url_schemes_for_role};
-use crate::store::{AppEntry, Store};
+use crate::store::{AppEntry, DefaultApp, Profile, Store};
 use crate::tray::build_tray_menu;
 
 #[tauri::command]
@@ -39,19 +39,39 @@ pub fn apply_profile(
     state: tauri::State<'_, std::sync::Mutex<Store>>,
 ) -> Result<(), String> {
     let dockutil = get_dockutil_path(&app)?;
+    let profile = load_profile(&state, &id)?;
+    clear_current_dock(&dockutil)?;
 
-    let profile = {
-        let store = state.lock().map_err(|e| e.to_string())?;
-        store
-            .data
-            .profiles
-            .iter()
-            .find(|p| p.id == id)
-            .cloned()
-            .ok_or_else(|| "Profile not found".to_string())?
-    };
+    let mut warnings = Vec::new();
+    add_apps_to_dock(&dockutil, &profile.apps, &mut warnings)?;
+    restart_dock()?;
+    update_active_profile(&state, &id)?;
+    refresh_tray(&app, &state);
+    apply_default_apps(&app, &profile.default_apps, &mut warnings);
 
-    let remove_output = std::process::Command::new(&dockutil)
+    if !warnings.is_empty() {
+        eprintln!("Warnings during profile apply: {:?}", warnings);
+    }
+
+    Ok(())
+}
+
+fn load_profile(
+    state: &tauri::State<'_, std::sync::Mutex<Store>>,
+    id: &str,
+) -> Result<Profile, String> {
+    let store = state.lock().map_err(|e| e.to_string())?;
+    store
+        .data
+        .profiles
+        .iter()
+        .find(|profile| profile.id == id)
+        .cloned()
+        .ok_or_else(|| "Profile not found".to_string())
+}
+
+fn clear_current_dock(dockutil: &str) -> Result<(), String> {
+    let remove_output = std::process::Command::new(dockutil)
         .args(["--remove", "all", "--no-restart"])
         .output()
         .map_err(|e| format!("Failed to remove dock items: {}", e))?;
@@ -63,13 +83,21 @@ pub fn apply_profile(
         ));
     }
 
-    let mut warnings = Vec::new();
-    for entry in &profile.apps {
+    Ok(())
+}
+
+fn add_apps_to_dock(
+    dockutil: &str,
+    apps: &[AppEntry],
+    warnings: &mut Vec<String>,
+) -> Result<(), String> {
+    for entry in apps {
         if !std::path::Path::new(&entry.path).exists() {
             warnings.push(format!("{} not found at {}", entry.name, entry.path));
             continue;
         }
-        let add_output = std::process::Command::new(&dockutil)
+
+        let add_output = std::process::Command::new(dockutil)
             .args(["--add", &entry.path, "--no-restart"])
             .output()
             .map_err(|e| format!("Failed to add {}: {}", entry.name, e))?;
@@ -83,66 +111,79 @@ pub fn apply_profile(
         }
     }
 
+    Ok(())
+}
+
+fn apply_default_apps(app: &tauri::AppHandle, defaults: &[DefaultApp], warnings: &mut Vec<String>) {
+    if defaults.is_empty() {
+        return;
+    }
+
+    match get_duti_path(app) {
+        Ok(duti) => {
+            for default_app in defaults {
+                for scheme in url_schemes_for_role(&default_app.role) {
+                    let output = std::process::Command::new(&duti)
+                        .args(["-s", &default_app.bundle_id, scheme])
+                        .output();
+                    match output {
+                        Ok(result) if !result.status.success() => {
+                            warnings.push(format!(
+                                "duti failed for {} ({}): {}",
+                                default_app.bundle_id,
+                                scheme,
+                                String::from_utf8_lossy(&result.stderr).trim()
+                            ));
+                        }
+                        Err(e) => {
+                            warnings.push(format!(
+                                "duti failed for {} ({}): {}",
+                                default_app.bundle_id, scheme, e
+                            ));
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+        Err(e) => {
+            warnings.push(format!("Skipping default app changes: {}", e));
+        }
+    }
+}
+
+fn restart_dock() -> Result<(), String> {
     std::process::Command::new("killall")
         .arg("Dock")
         .output()
         .map_err(|e| format!("Failed to restart Dock: {}", e))?;
+    Ok(())
+}
 
-    {
-        let mut store = state.lock().map_err(|e| e.to_string())?;
-        store.data.active_profile_id = Some(id);
-        store.save().map_err(|e| e.to_string())?;
-    }
+fn update_active_profile(
+    state: &tauri::State<'_, std::sync::Mutex<Store>>,
+    profile_id: &str,
+) -> Result<(), String> {
+    let mut store = state.lock().map_err(|e| e.to_string())?;
+    store.data.active_profile_id = Some(profile_id.to_string());
+    store.save().map_err(|e| e.to_string())?;
+    Ok(())
+}
 
+fn refresh_tray(app: &tauri::AppHandle, state: &tauri::State<'_, std::sync::Mutex<Store>>) {
     if let Some(tray) = app.tray_by_id("main-tray") {
-        let store = state.lock().map_err(|e| e.to_string())?;
-        if let Ok(menu) = build_tray_menu(&app, &store) {
+        let store = match state.lock() {
+            Ok(store) => store,
+            Err(error) => {
+                eprintln!("Failed to lock store for tray refresh: {}", error);
+                return;
+            }
+        };
+
+        if let Ok(menu) = build_tray_menu(app, &store) {
             let _ = tray.set_menu(Some(menu));
         }
     }
-
-    // Apply default apps via duti
-    if !profile.default_apps.is_empty() {
-        match get_duti_path(&app) {
-            Ok(duti) => {
-                for default_app in &profile.default_apps {
-                    for scheme in url_schemes_for_role(&default_app.role) {
-                        // Use 2 args: duti -s <bundle_id> <scheme> sets URL scheme handler
-                        // With 3 args, duti interprets the second arg as a UTI, not a URL scheme
-                        let output = std::process::Command::new(&duti)
-                            .args(["-s", &default_app.bundle_id, scheme])
-                            .output();
-                        match output {
-                            Ok(result) if !result.status.success() => {
-                                warnings.push(format!(
-                                    "duti failed for {} ({}): {}",
-                                    default_app.bundle_id,
-                                    scheme,
-                                    String::from_utf8_lossy(&result.stderr).trim()
-                                ));
-                            }
-                            Err(e) => {
-                                warnings.push(format!(
-                                    "duti failed for {} ({}): {}",
-                                    default_app.bundle_id, scheme, e
-                                ));
-                            }
-                            _ => {}
-                        }
-                    }
-                }
-            }
-            Err(e) => {
-                warnings.push(format!("Skipping default app changes: {}", e));
-            }
-        }
-    }
-
-    if !warnings.is_empty() {
-        eprintln!("Warnings during profile apply: {:?}", warnings);
-    }
-
-    Ok(())
 }
 
 #[tauri::command]

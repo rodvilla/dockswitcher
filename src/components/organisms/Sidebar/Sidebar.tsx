@@ -14,6 +14,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Settings as SettingsIcon, Plus } from "lucide-react";
 import { SortableProfileItem } from "components/molecules/SortableProfileItem";
+import { ProfileContextMenu } from "components/molecules/ProfileContextMenu";
 import { Button } from "components/atoms/Button";
 import type { SidebarProps } from "./types";
 
@@ -166,31 +167,18 @@ function Sidebar({
       </div>
 
       {contextMenu && (
-        <div
-          className="fixed z-120 min-w-30 overflow-hidden rounded-lg bg-white p-1 text-left shadow-xl backdrop-blur-sm ring-1 ring-black/5 dark:bg-slate-800/90 dark:ring-white/10"
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              setRenamingId(contextMenu.id);
-              setContextMenu(null);
-            }}
-            className="flex w-full cursor-default items-center rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-blue-600 hover:text-white dark:text-gray-200"
-          >
-            Rename
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onDeleteProfile(contextMenu.id);
-              setContextMenu(null);
-            }}
-            className="flex w-full cursor-default items-center rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-blue-600 hover:text-white dark:text-gray-200"
-          >
-            Delete
-          </button>
-        </div>
+        <ProfileContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onRename={() => {
+            setRenamingId(contextMenu.id);
+            setContextMenu(null);
+          }}
+          onDelete={() => {
+            onDeleteProfile(contextMenu.id);
+            setContextMenu(null);
+          }}
+        />
       )}
     </div>
   );

@@ -11,7 +11,10 @@ use tauri::{tray::TrayIconBuilder, Manager, RunEvent, WindowEvent};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let store = Store::load().unwrap_or_default();
+    let store = Store::load().unwrap_or_else(|e| {
+        eprintln!("Failed to load store: {e}");
+        Store::default()
+    });
 
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
@@ -29,13 +32,18 @@ pub fn run() {
             }
 
             let store = app.state::<std::sync::Mutex<Store>>();
-            let store_guard = store.lock().unwrap();
+            let store_guard = store.lock().map_err(|e| e.to_string())?;
             let menu = build_tray_menu(app.handle(), &store_guard)?;
             drop(store_guard);
 
+            let icon = app
+                .default_window_icon()
+                .cloned()
+                .ok_or_else(|| "No default window icon available".to_string())?;
+
             let _tray = TrayIconBuilder::with_id("main-tray")
                 .tooltip("DockSwitcher")
-                .icon(app.default_window_icon().unwrap().clone())
+                .icon(icon)
                 .icon_as_template(true)
                 .menu(&menu)
                 .show_menu_on_left_click(true)
@@ -50,10 +58,16 @@ pub fn run() {
                     }
                     profile_id => {
                         let state = app.state::<std::sync::Mutex<Store>>();
-                        let profile_exists = {
-                            let store = state.lock().unwrap();
-                            store.data.profiles.iter().any(|p| p.id == profile_id)
+                        let store = match state.lock() {
+                            Ok(s) => s,
+                            Err(e) => {
+                                eprintln!("Failed to lock store: {}", e);
+                                return;
+                            }
                         };
+                        let profile_exists =
+                            store.data.profiles.iter().any(|p| p.id == profile_id);
+                        drop(store);
                         if profile_exists {
                             let app_clone = app.clone();
                             let id = profile_id.to_string();

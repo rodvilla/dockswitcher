@@ -1,8 +1,7 @@
-import { getVersion } from "@tauri-apps/api/app";
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Button } from "components/atoms";
 import { SettingsForm } from "components/organisms/SettingsForm";
+import { useAppVersion } from "../../hooks";
 import type { Settings } from "types/settings";
 
 interface SettingsPageProps {
@@ -16,25 +15,7 @@ function SettingsPage({
   onUpdateSettings,
   onBack,
 }: SettingsPageProps) {
-  const [appVersion, setAppVersion] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    getVersion()
-      .then((version) => {
-        if (isMounted) {
-          setAppVersion(version);
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to load app version:", error);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const { version: appVersion } = useAppVersion();
 
   return (
     <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
@@ -46,6 +27,7 @@ function SettingsPage({
           variant="ghost"
           icon={<ArrowLeft className="h-4 w-4" />}
           className="shadow-none"
+          type="button"
           onClick={onBack}
         >
           Back

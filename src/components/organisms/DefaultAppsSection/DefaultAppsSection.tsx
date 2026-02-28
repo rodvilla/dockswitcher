@@ -1,5 +1,6 @@
 import { Plus, X, AlertTriangle } from "lucide-react";
-import { Select, Button } from "components/atoms";
+import { Button } from "components/atoms";
+import { Select } from "components/molecules";
 import { DefaultAppCard } from "components/molecules/DefaultAppCard";
 import { useDefaultApps } from "hooks/useDefaultApps";
 import type { Profile } from "types/profile";
@@ -22,45 +23,20 @@ function DefaultAppsSection({
     setNewDefaultBundleId,
     newDefaultRole,
     setNewDefaultRole,
-    defaultAppRoles,
     availableRoles,
-    appsWithBundleId,
     handleAddDefaultApp,
     handleRemoveDefaultApp,
     initAddForm,
+    getRoleLabel,
+    getAppName,
+    appOptions,
+    roleOptions,
   } = useDefaultApps(profile, onUpdateProfile);
 
   const handleStartAdd = () => {
     initAddForm();
     setShowAddDefault(true);
   };
-
-  const getRoleLabel = (role: string) => {
-    return (
-      defaultAppRoles.find((r) => r.value === role)?.label ??
-      `${role.charAt(0).toUpperCase()}${role.slice(1)}`
-    );
-  };
-
-  const getAppName = (bundleId: string) => {
-    const app = appsWithBundleId.find((a) => a.bundle_id === bundleId);
-    return app?.name ?? bundleId;
-  };
-
-  const appOptions = appsWithBundleId.map((app) => ({
-    value: app.bundle_id,
-    label: app.name,
-  }));
-  const appOptionsWithFallback = appOptions.length
-    ? appOptions
-    : [{ value: "", label: "No apps with bundle id", disabled: true }];
-  const roleOptions = availableRoles.map((role) => ({
-    value: role.value,
-    label: getRoleLabel(role.value),
-  }));
-  const roleOptionsWithFallback = roleOptions.length
-    ? roleOptions
-    : [{ value: "", label: "No roles available", disabled: true }];
 
   return (
     <div className="space-y-4">
@@ -120,14 +96,14 @@ function DefaultAppsSection({
           <div className="grid grid-cols-2 gap-3">
             <Select
               label="App"
-              options={appOptionsWithFallback}
+              options={appOptions}
               value={newDefaultBundleId}
               onChange={setNewDefaultBundleId}
               placeholder="Select app"
             />
             <Select
               label="Role"
-              options={roleOptionsWithFallback}
+              options={roleOptions}
               value={newDefaultRole}
               onChange={setNewDefaultRole}
               placeholder="Select role"
