@@ -2,6 +2,7 @@ use crate::dock::{get_dockutil_path, parse_dockutil_output};
 use crate::duti::{get_duti_path, url_schemes_for_role};
 use crate::store::{AppEntry, DefaultApp, Profile, Store};
 use crate::tray::build_tray_menu;
+use tauri::Emitter;
 
 #[tauri::command]
 pub fn check_duti(app: tauri::AppHandle) -> Result<bool, String> {
@@ -48,6 +49,10 @@ pub fn apply_profile(
     update_active_profile(&state, &id)?;
     refresh_tray(&app, &state);
     apply_default_apps(&app, &profile.default_apps, &mut warnings);
+
+    if let Err(e) = app.emit("active-profile-changed", ()) {
+        eprintln!("Failed to emit active-profile-changed: {}", e);
+    }
 
     if !warnings.is_empty() {
         eprintln!("Warnings during profile apply: {:?}", warnings);
