@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import type { Profile } from "types/profile";
 
 export function useProfiles() {
@@ -26,6 +27,19 @@ export function useProfiles() {
 
   useEffect(() => {
     refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    let disposed = false;
+    const unlisten = listen("active-profile-changed", () => {
+      if (!disposed) {
+        refresh();
+      }
+    });
+    return () => {
+      disposed = true;
+      unlisten.then((fn) => fn());
+    };
   }, [refresh]);
 
   const createProfile = useCallback(

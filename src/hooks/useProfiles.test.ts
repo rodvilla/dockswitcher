@@ -11,6 +11,14 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 const mockInvoke = vi.mocked(invoke);
 
+let capturedListener: (() => void) | null = null;
+vi.mock("@tauri-apps/api/event", () => ({
+  listen: vi.fn((_event: string, handler: () => void) => {
+    capturedListener = handler;
+    return Promise.resolve(() => {});
+  }),
+}));
+
 describe("useProfiles", () => {
   const profiles: Profile[] = [
     {
@@ -25,6 +33,7 @@ describe("useProfiles", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    capturedListener = null;
   });
 
   it("loads profiles and active id on mount", async () => {
@@ -162,5 +171,34 @@ describe("useProfiles", () => {
     await waitFor(() => {
       expect(result.current.error).toContain("boom");
     });
+    await waitFor(() => {
+      expect(result.current.error).toContain("boom");
+    });
+  });
+
+  it("refreshes when active-profile-changed event fires", async () => {
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "get_profiles") return profiles;
+      if (cmd === "get_active_profile_id") return "profile-1";
+      return null;
+    });
+
+    renderHook(() => useProfiles());
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("get_profiles");
+    });
+
+    const callsBefore = mockInvoke.mock.calls.length;
+
+    await act(async () => {
+      capturedListener?.();
+    });
+
+    await waitFor(() => {
+      expect(mockInvoke.mock.calls.length).toBeGreaterThan(callsBefore);
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith("get_active_profile_id");
   });
 });
