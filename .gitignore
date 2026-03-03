@@ -27,3 +27,6 @@ dist-ssr
 # Icons that we don't need
 src-tauri/icons/android
 src-tauri/icons/ios
+
+# AI
+.sisyphus
